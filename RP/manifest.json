@@ -14,8 +14,8 @@
 		}
 	},
 	"header": {
-		"name": "testing",
-		"description": "testing testing testing",
+		"name": "Jigsaw Block Bedrock (RP)",
+		"description": "Resources for Jigsaw Block Bedrock\n\nMade by Warhead!\nContributors: OuterCloud, KekeCreations",
 		"min_engine_version": [
 			1,
 			20,

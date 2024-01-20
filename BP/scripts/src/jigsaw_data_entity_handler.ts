@@ -2,11 +2,11 @@ import { world, system, Dimension, Entity } from "@minecraft/server"
 import { JigsawBlockData } from "./types"
 
 world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
-    if (placeJigsaw.block.typeId != "testing:jigsaw_block") return;
+    if (placeJigsaw.block.typeId != "jigsaw:jigsaw_block") return;
 
     const dimension: Dimension = placeJigsaw.dimension
 
-    const dataEntity: Entity = dimension.spawnEntity("testing:jigsaw_data", {
+    const dataEntity: Entity = dimension.spawnEntity("jigsaw:jigsaw_data", {
         x: placeJigsaw.block.location.x + 0.5,
         y: placeJigsaw.block.location.y + 0.5,
         z: placeJigsaw.block.location.z + 0.5
@@ -34,7 +34,7 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
 })
 
 world.beforeEvents.playerBreakBlock.subscribe(breakJigsaw => {
-    if (breakJigsaw.block.typeId != "testing:jigsaw_block") return;
+    if (breakJigsaw.block.typeId != "jigsaw:jigsaw_block") return;
 
     const dimension: Dimension = breakJigsaw.dimension
 

@@ -2,12 +2,12 @@
     "format_version": "1.20.50",
     "minecraft:entity": {
         "description": {
-            "identifier": "testing:jigsaw_data",
+            "identifier": "jigsaw:jigsaw_data",
             "is_summonable": true,
             "is_spawnable": false
         },
         "component_groups": {
-            "testing:despawn": {
+            "jigsaw:despawn": {
                 "minecraft:instant_despawn": {}
             }
         },
@@ -28,10 +28,10 @@
             }
         },
         "events": {
-            "testing:despawn": {
+            "jigsaw:despawn": {
                 "add": {
                     "component_groups": [
-                        "testing:despawn"
+                        "jigsaw:despawn"
                     ]
                 }
             }

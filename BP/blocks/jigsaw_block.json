@@ -2,7 +2,7 @@
     "format_version": "1.20.50",
     "minecraft:block": {
         "description": {
-            "identifier": "testing:jigsaw_block",
+            "identifier": "jigsaw:jigsaw_block",
             "traits": {
                 "minecraft:placement_direction": {
                     "enabled_states": [
@@ -38,7 +38,7 @@
             },
             "minecraft:unit_cube": {},
             "minecraft:on_interact": {
-                "event": "testing:empty",
+                "event": "jigsaw:empty",
                 "condition": "!query.is_sneaking"
             }
         },
@@ -117,7 +117,7 @@
             }
         ],
         "events": {
-            "testing:empty": {
+            "jigsaw:empty": {
                 "swing": {}
             }
         }

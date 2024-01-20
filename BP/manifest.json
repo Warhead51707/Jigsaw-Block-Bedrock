@@ -14,8 +14,8 @@
 		}
 	},
 	"header": {
-		"name": "testing",
-		"description": "testing testing testing",
+		"name": "Jigsaw Block Bedrock (BP)",
+		"description": "Standalone/For Maps\n\nMade by Warhead\nContributors: OuterCloud, KekeCreations",
 		"min_engine_version": [
 			1,
 			20,

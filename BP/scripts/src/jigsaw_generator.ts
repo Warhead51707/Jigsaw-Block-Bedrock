@@ -4,7 +4,7 @@ import { templatePools } from "../datapack/template_pools"
 import { weightedRandom } from "./jigsaw_math"
 
 world.afterEvents.entityLoad.subscribe(jigsawDataLoad => {
-    if (jigsawDataLoad.entity.typeId != "testing:jigsaw_data") return
+    if (jigsawDataLoad.entity.typeId != "jigsaw:jigsaw_data") return
 
     const jigsawDataEntity: Entity = jigsawDataLoad.entity
     const jigsawData: JigsawBlockData = JSON.parse(jigsawDataEntity.getDynamicProperty("jigsawData") as string)
@@ -21,7 +21,7 @@ world.afterEvents.entityLoad.subscribe(jigsawDataLoad => {
 
 
     for (const loadedJigsaw of dimension.getEntities({
-        type: "testing:jigsaw_data"
+        type: "jigsaw:jigsaw_data"
     })) {
         const loadedJigsawData: JigsawBlockData = JSON.parse(loadedJigsaw.getDynamicProperty("jigsawData") as string)
 

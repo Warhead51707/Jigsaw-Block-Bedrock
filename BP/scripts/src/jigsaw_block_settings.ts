@@ -5,7 +5,7 @@ import { JigsawBlockData } from "./types"
 let hasOpened = false
 
 world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
-    if (jigsawInteract.block.typeId != "testing:jigsaw_block") return
+    if (jigsawInteract.block.typeId != "jigsaw:jigsaw_block") return
 
     if (jigsawInteract.player.isSneaking) return
 
