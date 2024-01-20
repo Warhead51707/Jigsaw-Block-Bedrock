@@ -1,0 +1,52 @@
+{
+	"format_version": 2,
+	"metadata": {
+		"authors": [
+			"warhead"
+		],
+		"generated_with": {
+			"bridge": [
+				"2.7.10"
+			],
+			"dash": [
+				"github:bridge-core/dash-compiler#8fa35c73292f6382747d0f411fca26431a6d2c8e"
+			]
+		}
+	},
+	"header": {
+		"name": "testing",
+		"description": "testing testing testing",
+		"min_engine_version": [
+			1,
+			20,
+			50
+		],
+		"uuid": "cd6901b7-b8d5-4fe7-8708-e51713cb2ffc",
+		"version": [
+			1,
+			0,
+			0
+		]
+	},
+	"modules": [
+		{
+			"type": "resources",
+			"uuid": "74cd10ae-420e-4f28-bb71-6c47e52b3a7c",
+			"version": [
+				1,
+				0,
+				0
+			]
+		}
+	],
+	"dependencies": [
+		{
+			"uuid": "0c4fbd68-42dd-4889-92c1-a8c3e4cbdaf8",
+			"version": [
+				1,
+				0,
+				0
+			]
+		}
+	]
+}

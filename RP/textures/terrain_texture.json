@@ -1,0 +1,14 @@
+{
+	"num_mip_levels": 4,
+	"padding": 8,
+	"resource_pack_name": "testing",
+	"texture_name": "atlas.terrain",
+	"texture_data": {
+		"jigsaw_side_clockwise": {
+			"textures": "textures/blocks/jigsaw_side_clockwise"
+		},
+		"jigsaw_side_counterclockwise": {
+			"textures": "textures/blocks/jigsaw_side_counterclockwise"
+		}
+	}
+}

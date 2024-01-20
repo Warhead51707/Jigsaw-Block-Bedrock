@@ -1,0 +1,40 @@
+{
+    "format_version": "1.20.50",
+    "minecraft:entity": {
+        "description": {
+            "identifier": "testing:jigsaw_data",
+            "is_summonable": true,
+            "is_spawnable": false
+        },
+        "component_groups": {
+            "testing:despawn": {
+                "minecraft:instant_despawn": {}
+            }
+        },
+        "components": {
+            "minecraft:damage_sensor": {
+                "triggers": {
+                    "cause": "all",
+                    "deals_damage": false
+                }
+            },
+            "minecraft:collision_box": {
+                "height": 0,
+                "width": 0
+            },
+            "minecraft:pushable": {
+                "is_pushable": false,
+                "is_pushable_by_piston": false
+            }
+        },
+        "events": {
+            "testing:despawn": {
+                "add": {
+                    "component_groups": [
+                        "testing:despawn"
+                    ]
+                }
+            }
+        }
+    }
+}

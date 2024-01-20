@@ -1,0 +1,45 @@
+{
+	"type": "minecraftBedrock",
+	"name": "testing",
+	"namespace": "testing",
+	"authors": [
+		"warhead"
+	],
+	"targetVersion": "1.20.50",
+	"description": "testing testing testing",
+	"experimentalGameplay": {
+		"holidayCreatorFeatures": true,
+		"creationOfCustomBiomes": true,
+		"upcomingCreatorFeatures": true,
+		"enableGameTestFramework": true,
+		"experimentalMolangFeatures": true,
+		"educationEdition": false
+	},
+	"bdsProject": false,
+	"packs": {
+		"behaviorPack": "./BP",
+		"resourcePack": "./RP"
+	},
+	"worlds": [
+		"./worlds/*"
+	],
+	"compiler": {
+		"plugins": [
+			"generatorScripts",
+			"typeScript",
+			"entityIdentifierAlias",
+			"customEntityComponents",
+			"customItemComponents",
+			"customBlockComponents",
+			"customCommands",
+			"moLang",
+			"formatVersionCorrection",
+			[
+				"simpleRewrite",
+				{
+					"packName": "testing"
+				}
+			]
+		]
+	}
+}

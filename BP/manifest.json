@@ -1,0 +1,71 @@
+{
+	"format_version": 2,
+	"metadata": {
+		"authors": [
+			"warhead"
+		],
+		"generated_with": {
+			"bridge": [
+				"2.7.10"
+			],
+			"dash": [
+				"github:bridge-core/dash-compiler#8fa35c73292f6382747d0f411fca26431a6d2c8e"
+			]
+		}
+	},
+	"header": {
+		"name": "testing",
+		"description": "testing testing testing",
+		"min_engine_version": [
+			1,
+			20,
+			50
+		],
+		"uuid": "0c4fbd68-42dd-4889-92c1-a8c3e4cbdaf8",
+		"version": [
+			1,
+			0,
+			0
+		]
+	},
+	"modules": [
+		{
+			"type": "data",
+			"uuid": "1e7b73ab-94a0-4e23-92ef-8d5c4dbcf120",
+			"version": [
+				1,
+				0,
+				0
+			]
+		},
+		{
+			"type": "script",
+			"language": "javascript",
+			"uuid": "bfece0b9-1323-40e9-b6a3-38c16f90c28d",
+			"entry": "scripts/main.js",
+			"version": [
+				1,
+				0,
+				0
+			]
+		}
+	],
+	"dependencies": [
+		{
+			"uuid": "cd6901b7-b8d5-4fe7-8708-e51713cb2ffc",
+			"version": [
+				1,
+				0,
+				0
+			]
+		},
+		{
+			"module_name": "@minecraft/server",
+			"version": "1.8.0-beta"
+		},
+		{
+			"module_name": "@minecraft/server-ui",
+			"version": "1.2.0-beta"
+		}
+	]
+}
