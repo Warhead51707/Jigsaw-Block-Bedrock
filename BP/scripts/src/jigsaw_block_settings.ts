@@ -2,16 +2,20 @@ import { world, system, Dimension, Entity } from "@minecraft/server"
 import { ModalFormData } from "@minecraft/server-ui"
 import { JigsawBlockData } from "./types"
 
-let hasOpened = false
+let hasOpened: any = []
 
 world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
     if (jigsawInteract.block.typeId != "jigsaw:jigsaw_block") return
 
     if (jigsawInteract.player.isSneaking) return
 
-    if (hasOpened) return
+    const playerOpenData: any[] = hasOpened.find(openData => openData.id == jigsawInteract.player.id)
 
-    if (!hasOpened) hasOpened = true
+    if (playerOpenData == undefined) {
+        hasOpened.push({
+            id: jigsawInteract.player.id
+        })
+    }
 
     const dimension: Dimension = jigsawInteract.player.dimension
     const dataEntity: Entity = dimension.getEntitiesAtBlockLocation(jigsawInteract.block.location)[0]
@@ -31,11 +35,13 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
     jigsawForm.textField("Turns into:", "minecraft:air", jigsawData.turnsInto)
 
     jigsawForm.dropdown("Joint type:", ["rollable", "aligned"], jigsawData.jointType == "rollable" ? 0 : 1)
-    jigsawForm.toggle("Keep? (Only enable after saved)", false)
+    jigsawForm.toggle("Keep? (Only enable after saved)", jigsawData.keep)
 
     system.run(() => {
         jigsawForm.show(jigsawInteract.player).then(formData => {
-            hasOpened = false
+            let index = hasOpened.indexOf(playerOpenData)
+
+            hasOpened.slice(index, 1)
 
             if (formData.canceled) return;
 

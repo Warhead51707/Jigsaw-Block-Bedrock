@@ -3,12 +3,6 @@ import { JigsawBlockData, TemplatePool, TemplatePoolElement } from "./types"
 import { templatePools } from "../datapack/template_pools"
 import { weightedRandom } from "./jigsaw_math"
 
-async function waitTicks(ticks: number) {
-    await new Promise<void>(res => {
-        system.runTimeout(res, ticks)
-    })
-}
-
 async function waitTick() {
     await new Promise<void>(res => {
         system.run(res)
@@ -21,9 +15,12 @@ world.afterEvents.entityLoad.subscribe(async event => {
     if (event.entity.typeId !== "jigsaw:jigsaw_data") return
 
     const entity: Entity = event.entity
+
+    if (entity.location.y > 260) return;
+
     const data: JigsawBlockData = JSON.parse(entity.getDynamicProperty("jigsawData") as string)
 
-    // This is to stop any logic from running for the jigsaw blocks placed in the template structures, debug purposes
+    // This is to stop any logic from running for the jigsaw blocks placed in the template structures
     if (data.keep) return
 
     // We are a branch jigsaw entity so we track ourselves and skip the code to spawn another branch
@@ -36,6 +33,8 @@ world.afterEvents.entityLoad.subscribe(async event => {
     const dimension: Dimension = entity.dimension
     const block: Block = dimension.getBlock(entity.location)
 
+    if (block.typeId !== "jigsaw:jigsaw_block") return
+
     const targetPool: TemplatePool = templatePools.find(pool => pool.id == data.targetPool)
 
     if (targetPool === undefined) {
@@ -45,6 +44,8 @@ world.afterEvents.entityLoad.subscribe(async event => {
     }
 
     const chosenStructure: TemplatePoolElement = weightedRandom(targetPool.elements)
+
+    world.sendMessage(chosenStructure.element.location)
 
     await dimension.runCommandAsync(`structure load "${chosenStructure.element.location}" ${entity.location.x} ${entity.location.y} ${entity.location.z} 0_degrees none true false`)
 
@@ -88,8 +89,6 @@ world.afterEvents.entityLoad.subscribe(async event => {
         if (rotation == "south") targetRotation = "180_degrees"
     }
 
-    world.sendMessage(`${branchData.facingDirection} => ${rotation} = ${targetRotation}`)
-
     await dimension.runCommandAsync(`structure load "${chosenStructure.element.location}" ${entity.location.x} ${entity.location.y} ${entity.location.z} ${targetRotation} none true false`)
 
     await waitTick()
@@ -110,8 +109,6 @@ world.afterEvents.entityLoad.subscribe(async event => {
     if (rotation == "east") offset.x--
     if (rotation == "south") offset.z--
     if (rotation == "west") offset.x++
-
-    offset.y = 0
 
     await dimension.runCommand(`structure load "${chosenStructure.element.location}" ${entity.location.x - offset.x} ${entity.location.y - offset.y} ${entity.location.z - offset.z} ${targetRotation}`)
 

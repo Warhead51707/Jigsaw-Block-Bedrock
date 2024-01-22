@@ -25,6 +25,10 @@
             "minecraft:pushable": {
                 "is_pushable": false,
                 "is_pushable_by_piston": false
+            },
+            "minecraft:tick_world": {
+                "radius": 2,
+                "never_despawn": true
             }
         },
         "events": {
