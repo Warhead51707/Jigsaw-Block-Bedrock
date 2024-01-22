@@ -11,4 +11,12 @@ If you're experiencing trouble, we encourage you to join our discord server or m
 Coming soon...
 
 # 🙌 Thank You Contributors!
-Thank you, OuterCloud & KekeCreations for making this project possible.
+Thank you,
+
+OuterCloud
+KekeCreations
+Vitroflare
+Anthrax101
+Chikorita Lover
+
+for making this project possible.
