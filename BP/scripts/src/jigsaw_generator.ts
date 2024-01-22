@@ -3,177 +3,129 @@ import { JigsawBlockData, TemplatePool, TemplatePoolElement } from "./types"
 import { templatePools } from "../datapack/template_pools"
 import { weightedRandom } from "./jigsaw_math"
 
-world.afterEvents.entityLoad.subscribe(jigsawDataLoad => {
-    if (jigsawDataLoad.entity.typeId != "jigsaw:jigsaw_data") return
+async function waitTicks(ticks: number) {
+    await new Promise<void>(res => {
+        system.runTimeout(res, ticks)
+    })
+}
 
-    const jigsawDataEntity: Entity = jigsawDataLoad.entity
-    const jigsawData: JigsawBlockData = JSON.parse(jigsawDataEntity.getDynamicProperty("jigsawData") as string)
+async function waitTick() {
+    await new Promise<void>(res => {
+        system.run(res)
+    })
+}
 
-    if (jigsawData.keep) return
+const branchEntities: Entity[] = []
 
-    const dimension: Dimension = jigsawDataEntity.dimension
+world.afterEvents.entityLoad.subscribe(async event => {
+    if (event.entity.typeId !== "jigsaw:jigsaw_data") return
 
-    const jigsawBlock: Block = dimension.getBlock(jigsawDataEntity.location)
+    const entity: Entity = event.entity
+    const data: JigsawBlockData = JSON.parse(entity.getDynamicProperty("jigsawData") as string)
 
-    let parentJigsawEntity: Entity
-    let parentJigsawBlock: Block
-    let parentJigsawData: JigsawBlockData
+    // This is to stop any logic from running for the jigsaw blocks placed in the template structures, debug purposes
+    if (data.keep) return
 
-
-    for (const loadedJigsaw of dimension.getEntities({
-        type: "jigsaw:jigsaw_data"
-    })) {
-        const loadedJigsawData: JigsawBlockData = JSON.parse(loadedJigsaw.getDynamicProperty("jigsawData") as string)
-
-        if (!loadedJigsawData.parent) continue
-
-        if (loadedJigsaw.id == jigsawDataEntity.id) continue
-
-        //world.sendMessage(`Parent Attempt Child ID: ${loadedJigsawData.childId}`)
-
-        if (loadedJigsawData.childId != "null") continue
-
-        if (loadedJigsawData.targetName == jigsawData.name) {
-            parentJigsawEntity = loadedJigsaw
-
-            parentJigsawBlock = dimension.getBlock(loadedJigsaw.location)
-            parentJigsawData = loadedJigsawData
-
-            parentJigsawData.facingDirection = dimension.getBlock(loadedJigsaw.location).permutation.getState("minecraft:cardinal_direction") as string
-
-            parentJigsawData.childId = jigsawDataEntity.id
-
-            parentJigsawEntity.setDynamicProperty("jigsawData", JSON.stringify(parentJigsawData, null, 4))
-
-            world.sendMessage(`Parent found: ${parentJigsawEntity.id}, of child: ${jigsawDataEntity.id}, with calibration: ${parentJigsawData.childStructureRotation}`)
-
-            break
-        }
-
-
-    }
-
-    //Empty target
-    if (jigsawData.targetPool != "minecraft:empty") {
-        const foundTargetPool: TemplatePool = templatePools.find(pool => pool.id == jigsawData.targetPool)
-
-        if (foundTargetPool == undefined) {
-            world.sendMessage("Warning - Bad target pool")
-            return
-        }
-
-        const chosenStruct: TemplatePoolElement = weightedRandom(foundTargetPool.elements)
-
-        jigsawData.chosenStructure = chosenStruct.element.location
-
-        jigsawData.parent = true
-
-        jigsawDataEntity.setDynamicProperty("jigsawData", JSON.stringify(jigsawData, null, 4))
-
-        dimension.runCommand(`structure load "${chosenStruct.element.location}" ${jigsawDataEntity.location.x} ${jigsawDataEntity.location.y} ${jigsawDataEntity.location.z} 0_degrees none true false`)
+    // We are a branch jigsaw entity so we track ourselves and skip the code to spawn another branch
+    if (data.targetPool === "minecraft:empty") {
+        branchEntities.push(entity)
 
         return
     }
 
-    // Calibrated child spawn
-    if (parentJigsawEntity != undefined && parentJigsawData.calibrated) {
-        let difference: Vector3 = {
-            x: jigsawDataEntity.location.x - parentJigsawEntity.location.x,
-            y: jigsawDataEntity.location.y - parentJigsawEntity.location.y,
-            z: jigsawDataEntity.location.z - parentJigsawEntity.location.z
-        }
+    const dimension: Dimension = entity.dimension
+    const block: Block = dimension.getBlock(entity.location)
 
-        if (parentJigsawData.facingDirection == "north") difference.z++
-        if (parentJigsawData.facingDirection == "east") difference.x--
-        if (parentJigsawData.facingDirection == "south") difference.z--
-        if (parentJigsawData.facingDirection == "west") difference.x++
+    const targetPool: TemplatePool = templatePools.find(pool => pool.id == data.targetPool)
 
-        jigsawDataEntity.teleport({
-            x: parentJigsawEntity.location.x - difference.x,
-            y: parentJigsawEntity.location.y - difference.y,
-            z: parentJigsawEntity.location.z - difference.z
-        })
-
-        world.sendMessage(`${jigsawDataEntity.location.x}, ${jigsawDataEntity.location.y}, ${jigsawDataEntity.location.z}`)
-        world.sendMessage(`${difference.x}, ${difference.y}, ${difference.z}`)
-        world.sendMessage(`${parentJigsawEntity.location.x}, ${parentJigsawEntity.location.y}, ${parentJigsawEntity.location.z}`)
-
-        dimension.getBlock({
-            x: parentJigsawEntity.location.x,
-            y: parentJigsawEntity.location.y + 6,
-            z: parentJigsawEntity.location.z
-        }).setType("minecraft:sea_lantern")
-
-        dimension.getBlock({
-            x: jigsawDataEntity.location.x,
-            y: jigsawDataEntity.location.y + 6,
-            z: jigsawDataEntity.location.z
-        }).setType("minecraft:glowstone")
-
-        dimension.spawnEntity("minecraft:armor_stand", jigsawDataEntity.location)
-
-        world.sendMessage(parentJigsawData.childStructureRotation)
-
-        dimension.runCommand(`structure load "${parentJigsawData.chosenStructure}" ${jigsawDataEntity.location.x} ${jigsawDataEntity.location.y} ${jigsawDataEntity.location.z} ${parentJigsawData.childStructureRotation}`)
-
-        parentJigsawBlock.setType(parentJigsawData.turnsInto)
-        parentJigsawEntity.remove()
-
-        jigsawDataEntity.remove()
+    if (targetPool === undefined) {
+        world.sendMessage("Warning - Bad target pool")
 
         return
     }
 
-    // Calibrate child for rotation
-    if (parentJigsawEntity != undefined) {
+    const chosenStructure: TemplatePoolElement = weightedRandom(targetPool.elements)
 
-        let structureRotation: string = "0_degrees"
+    await dimension.runCommandAsync(`structure load "${chosenStructure.element.location}" ${entity.location.x} ${entity.location.y} ${entity.location.z} 0_degrees none true false`)
 
-        if (jigsawData.facingDirection == "north") {
-            if (parentJigsawData.facingDirection == "north") structureRotation = "180_degrees"
-            if (parentJigsawData.facingDirection == "east") structureRotation = "270_degrees"
-            if (parentJigsawData.facingDirection == "west") structureRotation = "90_degrees"
-            if (parentJigsawData.facingDirection == "south") structureRotation = "0_degrees"
-        }
+    await waitTick()
 
-        if (jigsawData.facingDirection == "east") {
-            if (parentJigsawData.facingDirection == "north") structureRotation = "90_degrees"
-            if (parentJigsawData.facingDirection == "east") structureRotation = "180_degrees"
-            if (parentJigsawData.facingDirection == "west") structureRotation = "0_degrees"
-            if (parentJigsawData.facingDirection == "south") structureRotation = "270_degrees"
-        }
+    let branchEntity = branchEntities.shift()
+    let branchData: JigsawBlockData = JSON.parse(branchEntity.getDynamicProperty("jigsawData") as string)
+    let branchBlock = dimension.getBlock(branchEntity.location)
 
-        if (jigsawData.facingDirection == "west") {
-            if (parentJigsawData.facingDirection == "north") structureRotation = "270_degrees"
-            if (parentJigsawData.facingDirection == "east") structureRotation = "0_degrees"
-            if (parentJigsawData.facingDirection == "west") structureRotation = "180_degrees"
-            if (parentJigsawData.facingDirection == "south") structureRotation = "90_degrees"
-        }
+    branchEntity.remove()
 
-        if (jigsawData.facingDirection == "south") {
-            if (parentJigsawData.facingDirection == "north") structureRotation = "0_degrees"
-            if (parentJigsawData.facingDirection == "east") structureRotation = "90_degrees"
-            if (parentJigsawData.facingDirection == "west") structureRotation = "270_degrees"
-            if (parentJigsawData.facingDirection == "south") structureRotation = "180_degrees"
-        }
+    const rotation = block.permutation.getState("minecraft:cardinal_direction")
 
-        dimension.runCommand(`structure load "${parentJigsawData.chosenStructure}" ${parentJigsawEntity.location.x} ${parentJigsawEntity.location.y} ${parentJigsawEntity.location.z} ${structureRotation} none true false`)
+    let targetRotation: string = "0_degrees"
 
-        parentJigsawData.calibrated = true
-        parentJigsawData.childStructureRotation = structureRotation
-
-        parentJigsawData.childId = "null"
-
-        parentJigsawEntity.setDynamicProperty("jigsawData", JSON.stringify(parentJigsawData, null, 4))
-
-        jigsawDataEntity.remove()
-
-        return
+    if (branchData.facingDirection == "north") {
+        if (rotation == "north") targetRotation = "180_degrees"
+        if (rotation == "east") targetRotation = "270_degrees"
+        if (rotation == "west") targetRotation = "90_degrees"
+        if (rotation == "south") targetRotation = "0_degrees"
     }
-    // Empty yigsaw
-    if (jigsawData.targetPool == "minecraft:empty") {
-        jigsawDataEntity.remove()
-        jigsawBlock.setType(jigsawData.turnsInto)
-        return
+
+    if (branchData.facingDirection == "east") {
+        if (rotation == "north") targetRotation = "90_degrees"
+        if (rotation == "east") targetRotation = "180_degrees"
+        if (rotation == "west") targetRotation = "0_degrees"
+        if (rotation == "south") targetRotation = "270_degrees"
     }
+
+    if (branchData.facingDirection == "west") {
+        if (rotation == "north") targetRotation = "270_degrees"
+        if (rotation == "east") targetRotation = "0_degrees"
+        if (rotation == "west") targetRotation = "180_degrees"
+        if (rotation == "south") targetRotation = "90_degrees"
+    }
+
+    if (branchData.facingDirection == "south") {
+        if (rotation == "north") targetRotation = "0_degrees"
+        if (rotation == "east") targetRotation = "90_degrees"
+        if (rotation == "west") targetRotation = "270_degrees"
+        if (rotation == "south") targetRotation = "180_degrees"
+    }
+
+    world.sendMessage(`${branchData.facingDirection} => ${rotation} = ${targetRotation}`)
+
+    await dimension.runCommandAsync(`structure load "${chosenStructure.element.location}" ${entity.location.x} ${entity.location.y} ${entity.location.z} ${targetRotation} none true false`)
+
+    await waitTick()
+
+    branchEntity = branchEntities.shift()
+    branchData = JSON.parse(branchEntity.getDynamicProperty("jigsawData") as string)
+
+
+    let offset: Vector3 = {
+        x: branchEntity.location.x - entity.location.x,
+        y: branchEntity.location.y - entity.location.y,
+        z: branchEntity.location.z - entity.location.z
+    }
+
+    branchEntity.remove()
+
+    if (rotation == "north") offset.z++
+    if (rotation == "east") offset.x--
+    if (rotation == "south") offset.z--
+    if (rotation == "west") offset.x++
+
+    offset.y = 0
+
+    await dimension.runCommand(`structure load "${chosenStructure.element.location}" ${entity.location.x - offset.x} ${entity.location.y - offset.y} ${entity.location.z - offset.z} ${targetRotation}`)
+
+    await waitTick()
+
+    branchEntity = branchEntities.shift()
+    branchData = JSON.parse(branchEntity.getDynamicProperty("jigsawData") as string)
+    branchBlock = dimension.getBlock(branchEntity.location)
+
+    branchEntity.remove()
+
+    branchBlock.setType(branchData.turnsInto)
+
+    entity.remove()
+
+    block.setType(data.turnsInto)
 })
