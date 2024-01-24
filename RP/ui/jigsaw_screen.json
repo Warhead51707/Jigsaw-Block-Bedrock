@@ -1,0 +1,268 @@
+{
+	"namespace": "kekecreations_jigsaw",
+	"jigsaw_panel": {
+		"type": "panel",
+		"size": [
+			135,
+			159
+		],
+		"controls": [
+			{
+				"scroll_panel@common.scrolling_panel": {
+					"anchor_to": "top_left",
+					"anchor_from": "top_left",
+					"$show_background": false,
+					"size": [
+						"100%",
+						"100%"
+					],
+					"$scrolling_content": "kekecreations_jigsaw.jigsaw_scrolling_content",
+					"$scroll_size": [
+						5,
+						"100% - 4px"
+					],
+					"$scrolling_pane_size": [
+						"200%",
+						"220%"
+					],
+					"$scrolling_pane_offset": [
+						-65,
+						-85
+					],
+					"$scroll_bar_right_padding_size": [
+						0,
+						0
+					]
+				}
+			},
+			{
+				"background@common.screen_background": {
+					"size": [
+						"500%",
+						"220%"
+					]
+				}
+			}
+		]
+	},
+	"jigsaw_scrolling_content": {
+		"type": "stack_panel",
+		"size": [
+			"100% - 4px",
+			"100%c"
+		],
+		"offset": [
+			2,
+			0
+		],
+		"orientation": "vertical",
+		"anchor_from": "top_left",
+		"anchor_to": "top_left",
+		"controls": [
+			{
+				"generated_form@kekecreations_jigsaw.generated_contents": {}
+			},
+			{
+				"menu_buffer@kekecreations_jigsaw.vertical_buffer": {}
+			},
+			{
+				"exit_buttons": {
+					"type": "stack_panel",
+					"orientation": "horizontal",
+					"size": [
+						"100%",
+						"100%cm"
+					],
+					"controls": [
+						{
+							"submit_button@common_buttons.light_text_button": {
+								"$pressed_button_name": "button.submit_custom_form",
+								"anchor_from": "top_left",
+								"anchor_to": "top_left",
+								"size": [
+									"fill",
+									20
+								],
+								"$button_text": "jigsaw.exit.done",
+								"bindings": [
+									{
+										"binding_name": "#submit_button_visible",
+										"binding_name_override": "#visible"
+									}
+								]
+							}
+						},
+						{
+							"button_buffer@jigsaw_editor.horizontal_buffer": {}
+						},
+						{
+							"cancel_button@common_buttons.light_text_button": {
+								"$pressed_button_name": "button.menu_exit",
+								"anchor_from": "top_right",
+								"anchor_to": "top_right",
+								"size": [
+									"fill",
+									20
+								],
+								"$button_text": "jigsaw.exit.cancel",
+								"bindings": [
+									{
+										"binding_name": "#submit_button_visible",
+										"binding_name_override": "#visible"
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		]
+	},
+	"generated_contents": {
+		"type": "stack_panel",
+		"size": [
+			"100%",
+			"100%c"
+		],
+		"orientation": "vertical",
+		"anchor_from": "top_left",
+		"anchor_to": "top_left",
+		"factory": {
+			"name": "buttons",
+			"control_ids": {
+				"label": "@server_form.custom_label",
+				"toggle": "@server_form.custom_toggle",
+				"slider": "@server_form.custom_slider",
+				"step_slider": "@server_form.custom_step_slider",
+				"dropdown": "@kekecreations_jigsaw.jigsaw_dropdown",
+				"input": "@kekecreations_jigsaw.jigsaw_input"
+			}
+		},
+		"collection_name": "custom_form",
+		"bindings": [
+			{
+				"binding_name": "#custom_form_length",
+				"binding_name_override": "#collection_length"
+			}
+		]
+	},
+	"jigsaw_input@kekecreations_jigsaw.option_text_edit": {
+		"$option_label": "#custom_text",
+		"$option_place_holder_text": "#custom_placeholder_text",
+		"$text_edit_box_placeholder_content_binding_name": "$option_place_holder_text",
+		"$text_edit_box_placeholder_content_binding_type": "collection",
+		"$text_edit_box_grid_collection_name": "custom_form",
+		"$max_text_edit_length": 100,
+		"$text_edit_box_content_binding_type": "collection",
+		"$text_edit_box_content_binding_name": "#custom_input_text",
+		"$option_binding_name": "#custom_input_text",
+		"$text_box_enabled_binding_name": "#custom_input_enabled",
+		"$text_box_name": "custom_input",
+		"$label_bindings": [
+			{
+				"binding_name": "#custom_text",
+				"binding_type": "collection",
+				"binding_collection_name": "custom_form"
+			}
+		]
+	},
+	"option_text_edit_control@common.text_edit_box": {
+		"$option_text_edit_control_size|default": [
+			"100%",
+			"22px"
+		],
+		"size": "$option_text_edit_control_size",
+		"max_length": "$max_text_edit_length",
+		"$text_edit_box_content_binding_name": "$option_binding_name",
+		"$text_edit_box_binding_collection_name": "$option_binding_name",
+		"$text_edit_box_binding_type": "global",
+		"$text_box_enabled_binding_name": "$option_enabled_binding_name",
+		"enabled": "$enabled",
+		"$place_holder_text": "$option_place_holder_text",
+		"$text_box_tts_header": "$option_label",
+		"$tts_override_control_value|default": " ",
+		"tts_override_control_value": "$tts_override_control_value",
+		"variables": [
+			{
+				"requires": "(not $option_enabled_binding_name or not $enabled)",
+				"$text_box_enabled_binding_name": "#not_data_bound",
+				"$text_edit_box_enabled_binding_type": "none"
+			}
+		]
+	},
+	"option_text_edit@settings_common.option_generic": {
+		"$option_place_holder_text|default": "",
+		"$max_text_edit_length|default": 30,
+		"$control_name": "kekecreations_jigsaw.option_text_edit_control"
+	},
+	"option_dropdown_control": {
+		"type": "panel",
+		"$option_dropdown_size|default": [
+			"100%",
+			22
+		],
+		"size": "$option_dropdown_size",
+		"anchor_from": "center",
+		"anchor_to": "center",
+		"$dropdown_background_control|default": "common.dropdown_background",
+		"$option_dropdown_type|default": "common.dropdown",
+		"$option_label|default": "",
+		"layer": 2,
+		"controls": [
+			{
+				"dropdown@$option_dropdown_type": {
+					"$dropdown_toggle": "settings_common.options_dropdown_toggle_control",
+					"$dropdown_background": "$dropdown_background_control",
+					"$dropdown_content|default": "unset_dropdown_content",
+					"$dropdown_name|default": "unset $dropdown_name",
+					"$options_dropdown_toggle_label_binding|default": "unset $options_dropdown_toggle_label_text",
+					"$locked_alpha": 0.5,
+					"$toggle_tts_header": "$option_label"
+				}
+			}
+		]
+	},
+	"option_dropdown@settings_common.option_generic": {
+		"$control_name": "kekecreations_jigsaw.option_dropdown_control"
+	},
+	"jigsaw_dropdown": {
+		"type": "panel",
+		"size": [
+			"100%",
+			"100%c"
+		],
+		"controls": [
+			{
+				"dropdown@kekecreations_jigsaw.option_dropdown": {
+					"$option_label": "#custom_text",
+					"$dropdown_content": "server_form.custom_dropdown_content",
+					"$dropdown_area": "generated_form",
+					"$dropdown_name": "custom_dropdown",
+					"$toggle_binding_type": "collection",
+					"$toggle_grid_collection_name": "custom_form",
+					"$options_dropdown_toggle_label_binding": "#dropdown_option_text",
+					"$options_dropdown_toggle_label_binding_type": "collection",
+					"$options_dropdown_toggle_label_binding_collection_name": "custom_form",
+					"$dropdown_scroll_content_size": [
+						"100%",
+						"200%"
+					],
+					"$label_bindings": [
+						{
+							"binding_name": "#custom_text",
+							"binding_type": "collection",
+							"binding_collection_name": "custom_form"
+						}
+					]
+				}
+			}
+		]
+	},
+	"vertical_buffer": {
+		"type": "panel",
+		"size": [
+			0,
+			94
+		]
+	}
+}
