@@ -3,18 +3,18 @@
 	"jigsaw_panel": {
 		"type": "panel",
 		"size": [
-			135,
-			159
+			525,
+			275
 		],
 		"controls": [
 			{
 				"scroll_panel@common.scrolling_panel": {
 					"anchor_to": "top_left",
 					"anchor_from": "top_left",
-					"$show_background": false,
+					"$show_background": true,
 					"size": [
-						"100%",
-						"100%"
+						"65%",
+						"65%"
 					],
 					"$scrolling_content": "kekecreations_jigsaw.jigsaw_scrolling_content",
 					"$scroll_size": [
@@ -22,12 +22,12 @@
 						"100% - 4px"
 					],
 					"$scrolling_pane_size": [
-						"200%",
+						"95%",
 						"220%"
 					],
 					"$scrolling_pane_offset": [
-						-65,
-						-85
+						"25%",
+						"5%"
 					],
 					"$scroll_bar_right_padding_size": [
 						0,
@@ -38,8 +38,8 @@
 			{
 				"background@common.screen_background": {
 					"size": [
-						"500%",
-						"220%"
+						"100%",
+						"100%"
 					]
 				}
 			}
@@ -262,7 +262,43 @@
 		"type": "panel",
 		"size": [
 			0,
-			94
+			22
+		]
+	},
+	"jigsaw_screen@common.base_screen": {
+		"$screen_content": "kekecreations_jigsaw.scroll_panel",
+		"$screen_bg_content": "kekecreations_jigsaw.background"
+	},
+	"background@common.screen_background": {
+		"size": [
+			1000,
+			1000
+		]
+	},
+	"scroll_panel@common.scrolling_panel": {
+		"anchor_to": "top_left",
+		"anchor_from": "top_left",
+		"$show_background": false,
+		"size": [
+			525,
+			275
+		],
+		"$scrolling_content": "kekecreations_jigsaw.jigsaw_scrolling_content",
+		"$scroll_size": [
+			5,
+			"100% - 4px"
+		],
+		"$scrolling_pane_size": [
+			"60%",
+			"220%"
+		],
+		"$scrolling_pane_offset": [
+			"-30%",
+			"-46%"
+		],
+		"$scroll_bar_right_padding_size": [
+			0,
+			0
 		]
 	}
 }
