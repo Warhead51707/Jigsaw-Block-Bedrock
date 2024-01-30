@@ -1,17 +1,23 @@
 export const templatePools = [
     {
-        id: "test:house/rooms",
+        id: "pathway:paths",
         elements: [
             {
-                weight: 50,
+                weight: 45,
                 element: {
-                    location: "test:castle/rooms/room_one"
+                    location: "pathway:deepslate-3_2_5"
                 }
             },
             {
-                weight: 50,
+                weight: 45,
                 element: {
-                    location: "test:castle/rooms/room_two"
+                    location: "pathway:gold-3_2_5"
+                }
+            },
+            {
+                weight: 10,
+                element: {
+                    location: "pathway:purpur-3_2_5"
                 }
             }
         ]

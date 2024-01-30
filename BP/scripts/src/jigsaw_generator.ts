@@ -1,5 +1,5 @@
 import { world, system, Dimension, Entity, Block, Vector3 } from "@minecraft/server"
-import { JigsawBlockData, TemplatePool, TemplatePoolElement } from "./types"
+import { JigsawBlockData, TemplatePool, TemplatePoolElement, StructureGenerationData, StructureGenerationDataStructure, PositiveNegativeCorners } from "./types"
 import { templatePools } from "../datapack/template_pools"
 import { weightedRandom } from "./jigsaw_math"
 
@@ -22,6 +22,28 @@ world.afterEvents.entityLoad.subscribe(async event => {
 
     // This is to stop any logic from running for the jigsaw blocks placed in the template structures
     if (data.keep) return
+
+    // Collision Data Start
+    const jigsawStructureNamespace: string = data.targetName.split(":")[0]
+
+    let structureGenerationData: StructureGenerationData | undefined
+
+    try {
+        structureGenerationData = JSON.parse(world.getDynamicProperty(`structureGenerationData_${jigsawStructureNamespace}`) as string | undefined)
+    } catch (err) {
+        structureGenerationData = undefined
+    }
+
+    if (structureGenerationData == undefined) {
+        world.setDynamicProperty(`structureGenerationData_${jigsawStructureNamespace}`, JSON.stringify({
+            namespace: jigsawStructureNamespace,
+            structures: []
+        } as StructureGenerationData, null, 4))
+
+        structureGenerationData = JSON.parse(world.getDynamicProperty(`structureGenerationData_${jigsawStructureNamespace}`) as string) as StructureGenerationData
+    }
+
+    //Collision Data End
 
     // We are a branch jigsaw entity so we track ourselves and skip the code to spawn another branch
     if (data.targetPool === "minecraft:empty") {
@@ -110,7 +132,43 @@ world.afterEvents.entityLoad.subscribe(async event => {
     if (rotation == "south") offset.z--
     if (rotation == "west") offset.x++
 
+    const structureSize: string = chosenStructure.element.location.split("-")[1]
+
+    const structureGenDataStructure: StructureGenerationDataStructure = {
+        location: {
+            x: entity.location.x - offset.x,
+            y: entity.location.y - offset.y,
+            z: entity.location.z - offset.z
+        },
+        size: {
+            length: structureSize.split("_").map(Number)[0],
+            width: structureSize.split("_").map(Number)[1],
+            height: structureSize.split("_").map(Number)[2]
+        }
+    }
+
+    let collide: boolean = false
+
+    for (let structure of structureGenerationData.structures) {
+        if (structureCollideCheck(structureGenDataStructure, structure)) {
+            collide = true
+            break
+        }
+    }
+
+    if (collide) {
+        branchBlock.setType(branchData.turnsInto)
+
+        block.setType(data.turnsInto)
+
+        return
+    }
+
     await dimension.runCommand(`structure load "${chosenStructure.element.location}" ${entity.location.x - offset.x} ${entity.location.y - offset.y} ${entity.location.z - offset.z} ${targetRotation}`)
+
+    structureGenerationData.structures.push(structureGenDataStructure)
+
+    world.setDynamicProperty(`structureGenerationData_${jigsawStructureNamespace}`, JSON.stringify(structureGenerationData, null, 4))
 
     await waitTick()
 
@@ -126,3 +184,34 @@ world.afterEvents.entityLoad.subscribe(async event => {
 
     block.setType(data.turnsInto)
 })
+
+function getCornerCoordinates(structure: StructureGenerationDataStructure): PositiveNegativeCorners {
+    const negativeCorner: Vector3 = {
+        x: structure.location.x - structure.size.length / 2,
+        y: structure.location.y - structure.size.width / 2,
+        z: structure.location.z - structure.size.height / 2
+    }
+
+    const positiveCorner: Vector3 = {
+        x: structure.location.x + structure.size.length / 2,
+        y: structure.location.y + structure.size.width / 2,
+        z: structure.location.z + structure.size.height / 2
+    }
+
+    return {
+        negative: negativeCorner,
+        positive: positiveCorner
+    }
+}
+
+function structureCollideCheck(structure1: StructureGenerationDataStructure, structure2: StructureGenerationDataStructure): boolean {
+    const corners1: PositiveNegativeCorners = getCornerCoordinates(structure1)
+    const corners2: PositiveNegativeCorners = getCornerCoordinates(structure2)
+
+
+    const collisionX = corners1.positive.x >= corners2.negative.x && corners1.negative.x <= corners2.positive.x;
+    const collisionY = corners1.positive.y >= corners2.negative.y && corners1.negative.y <= corners2.positive.y;
+    const collisionZ = corners1.positive.z >= corners2.negative.z && corners1.negative.z <= corners2.positive.z;
+
+    return collisionX && collisionY && collisionZ;
+}

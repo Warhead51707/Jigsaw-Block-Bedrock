@@ -1,3 +1,20 @@
+import { Vector3 } from "@minecraft/server"
+
+export type PositiveNegativeCorners = {
+    positive: Vector3,
+    negative: Vector3
+}
+
+export type StructureGenerationData = {
+    namespace: string,
+    structures: StructureGenerationDataStructure[]
+}
+
+export type StructureGenerationDataStructure = {
+    location: Vector3,
+    size: { length: number, width: number, height: number }
+}
+
 export type JigsawBlockData = {
     targetPool: string,
     name: string,
