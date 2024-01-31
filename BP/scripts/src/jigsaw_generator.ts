@@ -16,7 +16,11 @@ world.afterEvents.entityLoad.subscribe(async event => {
 
     const entity: Entity = event.entity
 
-    if (entity.location.y > 260) return;
+    if (entity.location.y > 260) {
+        entity.remove()
+
+        return
+    }
 
     const data: JigsawBlockData = JSON.parse(entity.getDynamicProperty("jigsawData") as string)
 
@@ -55,19 +59,23 @@ world.afterEvents.entityLoad.subscribe(async event => {
     const dimension: Dimension = entity.dimension
     const block: Block = dimension.getBlock(entity.location)
 
-    if (block.typeId !== "jigsaw:jigsaw_block") return
+    if (block.typeId !== "jigsaw:jigsaw_block") {
+        entity.remove()
+
+        return
+    }
 
     const targetPool: TemplatePool = templatePools.find(pool => pool.id == data.targetPool)
 
     if (targetPool === undefined) {
         world.sendMessage("Warning - Bad target pool")
 
+        entity.remove()
+
         return
     }
 
     const chosenStructure: TemplatePoolElement = weightedRandom(targetPool.elements)
-
-    world.sendMessage(chosenStructure.element.location)
 
     await dimension.runCommandAsync(`structure load "${chosenStructure.element.location}" ${entity.location.x} ${entity.location.y} ${entity.location.z} 0_degrees none true false`)
 
@@ -160,6 +168,8 @@ world.afterEvents.entityLoad.subscribe(async event => {
         branchBlock.setType(branchData.turnsInto)
 
         block.setType(data.turnsInto)
+
+        entity.remove()
 
         return
     }
