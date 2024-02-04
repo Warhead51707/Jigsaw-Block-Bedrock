@@ -13,23 +13,9 @@ export function weightedRandom(weightedArray: any[]): any {
 }
 
 export function boundsIntersect(a: Bounds, b: Bounds) {
-    if (
-        a.start.x >= b.start.x &&
-        a.start.y >= b.start.y &&
-        a.start.z >= b.start.z &&
-        a.start.x < b.start.x + b.size.x &&
-        a.start.y < b.start.y + b.size.y &&
-        a.start.z < b.start.z + b.size.z
-    ) return true
+    const xIntersect = (a.start.x < b.start.x + b.size.x) && (a.start.x + a.size.x > b.start.x);
+    const yIntersect = (a.start.y < b.start.y + b.size.y) && (a.start.y + a.size.y > b.start.y);
+    const zIntersect = (a.start.z < b.start.z + b.size.z) && (a.start.z + a.size.z > b.start.z);
 
-    if (
-        b.start.x >= a.start.x &&
-        b.start.y >= a.start.y &&
-        b.start.z >= a.start.z &&
-        b.start.x <= a.start.x + a.size.x &&
-        b.start.y <= a.start.y + a.size.y &&
-        b.start.z <= a.start.z + a.size.z
-    ) return true
-
-    return false
+    return xIntersect && yIntersect && zIntersect;
 }

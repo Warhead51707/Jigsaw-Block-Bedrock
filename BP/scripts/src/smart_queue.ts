@@ -1,9 +1,10 @@
 import { world, system, Dimension, Vector3 } from "@minecraft/server"
+import { Bounds } from "./types"
 import { boundsIntersect } from "./jigsaw_math"
 
 async function waitTick() {
     await new Promise<void>(res => {
-        system.run(res)
+        system.runTimeout(res, 1)
     })
 }
 
