@@ -18,19 +18,12 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         targetName: "minecraft:empty",
         turnsInto: "minecraft:air",
         jointType: "rollable",
-        chosenStructure: "minecraft:empty",
         facingDirection: placeJigsaw.block.permutation.getState("minecraft:cardinal_direction") as string,
-        calibrated: false,
-        childStructureRotation: "null",
-        childId: "null",
         keep: false,
-        parent: false
+        branch: false
     }
 
     dataEntity.setDynamicProperty("jigsawData", JSON.stringify(jigsawData, null, 4))
-
-    // world.sendMessage(placeJigsaw.block.permutation.getState("minecraft:cardinal_direction") as string)
-    // world.sendMessage(placeJigsaw.block.permutation.getState("minecraft:facing_direction") as string)
 })
 
 world.beforeEvents.playerBreakBlock.subscribe(breakJigsaw => {
