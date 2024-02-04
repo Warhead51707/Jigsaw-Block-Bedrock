@@ -69,8 +69,8 @@ world.afterEvents.worldInitialize.subscribe(event => {
 
                         if (!intersect) continue
 
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', position)
-                        // player.dimension.spawnParticle('minecraft:basic_flame_particle', position)
+                        // player.dimension.spawnParticle('minecraft:sonic_explosion', position)
+                        player.dimension.spawnParticle('minecraft:basic_flame_particle', position)
                     }
                 }
             }
@@ -112,10 +112,12 @@ async function getBranches(name: string, position: Vector3, bounds: Bounds, dime
         })
 
     for (const entity of entities) {
-        const data = JSON.parse(entity.getDynamicProperty('jigsawData') as string) as JigsawBlockData
+        if (entity.typeId === 'jigsaw:jigsaw_data') {
+            const data = JSON.parse(entity.getDynamicProperty('jigsawData') as string) as JigsawBlockData
 
-        data.branch = true
-        entity.setDynamicProperty('jigsawData', JSON.stringify(data, null, 4))
+            data.branch = true
+            entity.setDynamicProperty('jigsawData', JSON.stringify(data, null, 4))
+        }
 
         entity.remove()
     }
@@ -125,7 +127,7 @@ async function getBranches(name: string, position: Vector3, bounds: Bounds, dime
     return result
 }
 
-async function getPlacement(position: Vector3, dimension: Dimension, data: JigsawBlockData, targetPool: TemplatePool): Promise<PlacementResult | null> {
+export async function getPlacement(position: Vector3, dimension: Dimension, data: JigsawBlockData, targetPool: TemplatePool): Promise<PlacementResult | null> {
     const targetPoolElements: TemplatePoolElement[] = JSON.parse(JSON.stringify(targetPool.elements))
 
     while (targetPoolElements.length > 0) {
