@@ -1,5 +1,5 @@
 import { world, Dimension, Entity, Block, Vector3, system } from '@minecraft/server'
-import { JigsawBlockData, TemplatePool, TemplatePoolElement, PlacementResult, Bounds } from './types'
+import { JigsawBlockData, TemplatePool, TemplatePoolElement, PlacementResult, Bounds, StructureBranches } from './types'
 import { templatePools } from '../datapack/template_pools'
 import { weightedRandom, boundsIntersect } from './jigsaw_math'
 import { placeStructureAndGetEntities } from './smart_queue'
@@ -30,6 +30,8 @@ function addPlacedBounds(bounds: Bounds) {
 }
 
 world.beforeEvents.chatSend.subscribe(event => {
+    if (!event.sender.isOp) return
+
     if (event.message === '!debug reset_structure_bounds') {
         world.setDynamicProperty('jigsaw:placed_bounds', '[]')
 
@@ -76,14 +78,6 @@ world.afterEvents.worldInitialize.subscribe(event => {
     }, 20)
 })
 
-function debugBounds(bounds: Bounds): string {
-    return `from ${bounds.start.x} ${bounds.start.y} ${bounds.start.z} to ${bounds.start.x + bounds.size.x} ${bounds.start.y + bounds.size.y} ${bounds.start.z + bounds.size.z}`
-}
-
-function debugVector3(vector: Vector3): string {
-    return `${vector.x} ${vector.y} ${vector.z}`
-}
-
 function shuffle(array) {
     let currentIndex = array.length, randomIndex;
 
@@ -95,6 +89,40 @@ function shuffle(array) {
     }
 
     return array;
+}
+
+const structureBranchesCache: { [key: string]: StructureBranches } = {}
+
+async function getBranches(name: string, position: Vector3, bounds: Bounds, dimension): Promise<StructureBranches> {
+    if (structureBranchesCache[name]) return structureBranchesCache[name]
+
+    const entities = (await placeStructureAndGetEntities(name, position, '0_degrees', true, bounds, dimension))
+
+    const result = entities
+        .filter(entity => entity.typeId === 'jigsaw:jigsaw_data')
+        .map(entity => {
+            return {
+                offset: {
+                    x: Math.floor(entity.location.x - position.x),
+                    y: Math.floor(entity.location.y - position.y),
+                    z: Math.floor(entity.location.z - position.z),
+                },
+                data: JSON.parse(entity.getDynamicProperty('jigsawData') as string) as JigsawBlockData
+            }
+        })
+
+    for (const entity of entities) {
+        const data = JSON.parse(entity.getDynamicProperty('jigsawData') as string) as JigsawBlockData
+
+        data.branch = true
+        entity.setDynamicProperty('jigsawData', JSON.stringify(data, null, 4))
+
+        entity.remove()
+    }
+
+    structureBranchesCache[name] = result
+
+    return result
 }
 
 async function getPlacement(position: Vector3, dimension: Dimension, data: JigsawBlockData, targetPool: TemplatePool): Promise<PlacementResult | null> {
@@ -109,21 +137,8 @@ async function getPlacement(position: Vector3, dimension: Dimension, data: Jigsa
             size: parseSize(chosenStructure.element.location)
         }
 
-        const branches = (await placeStructureAndGetEntities(chosenStructure.element.location, position, '0_degrees', true, bounds, dimension))
-            .filter(entity => entity.typeId === 'jigsaw:jigsaw_data')
-            .map(entity => {
-                return {
-                    entity,
-                    data: JSON.parse(entity.getDynamicProperty('jigsawData') as string) as JigsawBlockData
-                }
-            })
-
-        for (const branch of branches) {
-            branch.data.branch = true
-            branch.entity.setDynamicProperty('jigsawData', JSON.stringify(branch.data, null, 4))
-        }
-
-        const possibleBranches = shuffle(branches.filter(branch => branch.data.name === data.targetName))
+        const branches = await getBranches(chosenStructure.element.location, position, bounds, dimension)
+        const possibleBranches = shuffle(branches.filter(branch => branch.data.name === data.targetName)) as StructureBranches
 
         const sourceRotation = dimension.getBlock(position).permutation.getState('minecraft:cardinal_direction')
 
@@ -160,13 +175,7 @@ async function getPlacement(position: Vector3, dimension: Dimension, data: Jigsa
                 if (sourceRotation === 'south') targetRotation = '180_degrees'
             }
 
-            let branchOffset = {
-                x: Math.floor(branch.entity.location.x) - position.x,
-                y: Math.floor(branch.entity.location.y) - position.y,
-                z: Math.floor(branch.entity.location.z) - position.z,
-            }
-
-            // world.sendMessage(`Unrotated Offset ${debugVector3(branchOffset)}`)
+            let branchOffset = branch.offset
 
             if (targetRotation === '90_degrees') {
                 branchOffset = {
@@ -204,9 +213,6 @@ async function getPlacement(position: Vector3, dimension: Dimension, data: Jigsa
                 }
             }
 
-            // world.sendMessage(`Rotation ${targetRotation}`)
-            // world.sendMessage(`Rotated Offset ${debugVector3(branchOffset)}`)
-
             let sourceOffset = {
                 x: 0,
                 y: 0,
@@ -231,15 +237,11 @@ async function getPlacement(position: Vector3, dimension: Dimension, data: Jigsa
                 z: 0,
             }
 
-            // world.sendMessage(`Source Offset ${debugVector3(sourceOffset)}`)
-
             const placementPosition = {
                 x: position.x + sourceOffset.x - branchOffset.x,
                 y: position.y + sourceOffset.y - branchOffset.y,
                 z: position.z + sourceOffset.z - branchOffset.z,
             }
-
-            // world.sendMessage(`Placement Position ${debugVector3(placementPosition)}`)
 
             const placementBounds = {
                 start: placementPosition,
@@ -252,15 +254,12 @@ async function getPlacement(position: Vector3, dimension: Dimension, data: Jigsa
             for (const otherBounds of placedBounds) {
                 if (!boundsIntersect(placementBounds, otherBounds)) continue
 
-                // world.sendMessage(`Bounds ${debugBounds(placementBounds)} collides with bound ${debugBounds(otherBounds)}`)
-
                 canPlace = false
 
                 break
             }
 
-            // if (!canPlace) continue
-            if (!canPlace) break
+            if (!canPlace) continue
 
             validPlacements.push({
                 name: chosenStructure.element.location,
@@ -275,10 +274,6 @@ async function getPlacement(position: Vector3, dimension: Dimension, data: Jigsa
             })
 
             break
-        }
-
-        for (const branch of branches) {
-            branch.entity.remove()
         }
 
         if (validPlacements.length === 0) continue
@@ -321,14 +316,14 @@ async function generate(source: Entity) {
     const placement = await getPlacement(position, dimension, data, targetPool)
 
     if (placement === null) {
-        // block.setType(data.turnsInto)
+        block.setType(data.turnsInto)
 
         // world.sendMessage('No valid placement found!')
 
         return
     }
 
-    // block.setType(data.turnsInto)
+    block.setType(data.turnsInto)
 
     addPlacedBounds(placement.bounds)
 
@@ -337,17 +332,21 @@ async function generate(source: Entity) {
     for (const branchEntity of branchEntities) {
         if (branchEntity.typeId !== 'jigsaw:jigsaw_data') continue
 
+        const branchData: JigsawBlockData = JSON.parse(branchEntity.getDynamicProperty('jigsawData') as string)
+
         if (
             Math.floor(branchEntity.location.x) === placement.connectedPosition.x &&
             Math.floor(branchEntity.location.y) === placement.connectedPosition.y &&
             Math.floor(branchEntity.location.z) === placement.connectedPosition.z
         ) {
+            dimension.getBlock(placement.connectedPosition).setType(branchData.turnsInto)
+
             branchEntity.remove()
 
             continue
         }
 
-        const branchData: JigsawBlockData = JSON.parse(branchEntity.getDynamicProperty('jigsawData') as string)
+
         branchData.branch = true
         branchEntity.setDynamicProperty('jigsawData', JSON.stringify(branchData, null, 4))
 
