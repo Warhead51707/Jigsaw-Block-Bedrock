@@ -26,6 +26,12 @@ export const templatePools = [
                     location: "halls/e_1_10_10"
                 }
             },
+            {
+                weight: 1,
+                element: {
+                    location: "halls/e2_1_10_10"
+                }
+            },
         ]
     },
     {
