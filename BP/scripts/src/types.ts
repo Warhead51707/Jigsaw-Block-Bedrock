@@ -43,3 +43,15 @@ export type TemplatePoolElement = {
 type TemplatePoolElementData = {
     location: string
 }
+
+export interface Bounds {
+    start: Vector3,
+    end: Vector3,
+}
+
+export interface PlacementResult {
+    name: string,
+    position: Vector3,
+    rotation: "0_degrees" | "90_degrees" | "180_degrees" | "270_degrees",
+    bounds: Bounds
+}
