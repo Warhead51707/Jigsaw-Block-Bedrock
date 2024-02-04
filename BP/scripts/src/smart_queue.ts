@@ -1,4 +1,4 @@
-import { world, system, Dimension, Vector3 } from "@minecraft/server"
+import { world, system, Dimension, Vector3, Entity } from "@minecraft/server"
 import { Bounds } from "./types"
 import { boundsIntersect } from "./jigsaw_math"
 
@@ -8,13 +8,13 @@ async function waitTick() {
     })
 }
 
-const queue: { [key: string]: { name: string, position: Vector3, rotation: string, onlyEntities: boolean, bounds: Bounds, dimension: Dimension, resolve: () => void, loading: boolean } } = {}
+const queue: { [key: string]: { name: string, position: Vector3, rotation: string, onlyEntities: boolean, bounds: Bounds, dimension: Dimension, resolve: (entities: Entity[]) => void, loading: boolean } } = {}
 let nextQueueId = 0
 
-export async function placeStructureAndGetEntities(name: string, position: Vector3, rotation: string, onlyEntities: boolean, bounds: Bounds, dimension: Dimension) {
+export async function placeStructureAndGetEntities(name: string, position: Vector3, rotation: string, onlyEntities: boolean, bounds: Bounds, dimension: Dimension): Promise<Entity[]> {
     const task: any = { name, bounds, position, rotation, onlyEntities, loading: false, dimension }
 
-    const promise = new Promise(resolve => {
+    const result = new Promise<Entity[]>(resolve => {
         task.resolve = resolve
     })
 
@@ -23,9 +23,7 @@ export async function placeStructureAndGetEntities(name: string, position: Vecto
 
     queue[id] = task
 
-    await promise
-
-    return dimension.getEntities().filter(entity => boundsIntersect({ start: entity.location, size: { x: 0, y: 0, z: 0 } }, bounds))
+    return await result
 }
 
 world.afterEvents.worldInitialize.subscribe(event => {
@@ -53,11 +51,16 @@ world.afterEvents.worldInitialize.subscribe(event => {
             queueItem.loading = true
 
             async function load() {
+                const existingEntityIds = queueItem.dimension.getEntities().map(entity => entity.id)
+
                 await queueItem.dimension.runCommand(`structure load "${queueItem.name}" ${queueItem.position.x} ${queueItem.position.y} ${queueItem.position.z} ${queueItem.rotation} none true ${!queueItem.onlyEntities}`)
                 await waitTick()
 
                 delete queue[id]
-                queueItem.resolve()
+
+                const containedEntities = queueItem.dimension.getEntities().filter(entity => boundsIntersect({ start: entity.location, size: { x: 0, y: 0, z: 0 } }, queueItem.bounds))
+
+                queueItem.resolve(containedEntities.filter(entity => !existingEntityIds.includes(entity.id)))
             }
 
             load()
