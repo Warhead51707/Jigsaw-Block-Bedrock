@@ -46,7 +46,7 @@ type TemplatePoolElementData = {
 
 export interface Bounds {
     start: Vector3,
-    end: Vector3,
+    size: Vector3,
 }
 
 export interface PlacementResult {
