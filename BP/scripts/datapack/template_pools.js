@@ -1,5 +1,34 @@
 export const templatePools = [
     {
+        id: "halls",
+        elements: [
+            {
+                weight: 100,
+                element: {
+                    location: "halls/s_10_10_8"
+                }
+            },
+            {
+                weight: 40,
+                element: {
+                    location: "halls/t_10_10_10"
+                }
+            },
+            {
+                weight: 20,
+                element: {
+                    location: "halls/c_11_10_12"
+                }
+            },
+            {
+                weight: 1,
+                element: {
+                    location: "halls/e_1_10_10"
+                }
+            },
+        ]
+    },
+    {
         id: "pathway:paths",
         elements: [
             {
