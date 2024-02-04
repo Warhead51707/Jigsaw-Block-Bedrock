@@ -17,18 +17,18 @@ export function boundsIntersect(a: Bounds, b: Bounds) {
         a.start.x >= b.start.x &&
         a.start.y >= b.start.y &&
         a.start.z >= b.start.z &&
-        a.start.x <= b.end.x &&
-        a.start.y <= b.end.y &&
-        a.start.z <= b.end.z
+        a.start.x < b.start.x + b.size.x &&
+        a.start.y < b.start.y + b.size.y &&
+        a.start.z < b.start.z + b.size.z
     ) return true
 
     if (
         b.start.x >= a.start.x &&
         b.start.y >= a.start.y &&
         b.start.z >= a.start.z &&
-        b.start.x <= a.end.x &&
-        b.start.y <= a.end.y &&
-        b.start.z <= a.end.z
+        b.start.x <= a.start.x + a.size.x &&
+        b.start.y <= a.start.y + a.size.y &&
+        b.start.z <= a.start.z + a.size.z
     ) return true
 
     return false

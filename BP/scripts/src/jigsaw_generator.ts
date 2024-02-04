@@ -1,65 +1,14 @@
-import { world, system, Dimension, Entity, Block, Vector3 } from "@minecraft/server"
+import { world, Dimension, Entity, Block, Vector3, system } from "@minecraft/server"
 import { JigsawBlockData, TemplatePool, TemplatePoolElement, StructureGenerationData, StructureGenerationDataStructure, PositiveNegativeCorners, PlacementResult, Bounds } from "./types"
 import { templatePools } from "../datapack/template_pools"
 import { weightedRandom, boundsIntersect } from "./jigsaw_math"
+import { placeStructureAndGetEntities } from "./smart_queue"
 
 async function waitTick() {
     await new Promise<void>(res => {
         system.run(res)
     })
 }
-
-const queue: { [key: string]: { name: string, bounds: Bounds, resolve: () => void, loading: boolean } } = {}
-let nextQueueId = 0
-
-async function placeStructureSafe(name: string, bounds: Bounds) {
-    const task: any = { name, bounds, loading: false }
-
-    const promise = new Promise(resolve => {
-        task.resolve = resolve
-    })
-
-    const id = nextQueueId
-    nextQueueId++
-
-    queue[id] = task
-
-    await promise
-}
-
-world.afterEvents.worldInitialize.subscribe(event => {
-    system.runInterval(() => {
-        const loadedBounds = Object.values(queue).filter(otherItem => otherItem.loading).map(otherItem => otherItem.bounds)
-
-        for (const id of Object.keys(queue)) {
-            const queueItem = queue[id]
-
-            if (queueItem.loading) continue
-
-            let canLoad = true
-
-            for (const otherBounds of loadedBounds) {
-                if (!boundsIntersect(queueItem.bounds, otherBounds)) continue
-
-                canLoad = false
-
-                break
-            }
-
-            if (!canLoad) continue
-
-            loadedBounds.push(queueItem.bounds)
-            queueItem.loading = true
-
-            world.sendMessage(`Loading ${queueItem.name}`)
-
-            system.runTimeout(() => {
-                delete queue[id]
-                queueItem.resolve()
-            }, 20)
-        }
-    }, 1)
-})
 
 async function calculatePlacement(source: Entity, targetPool: TemplatePool): Promise<PlacementResult | null> {
     const dimension = source.dimension
@@ -166,15 +115,7 @@ async function calculatePlacement(source: Entity, targetPool: TemplatePool): Pro
 
 world.afterEvents.chatSend.subscribe(async event => {
     if (event.message === "test") {
-        await placeStructureSafe('test', {
-            start: { x: 0, y: 0, z: 0 },
-            end: { x: 1, y: 1, z: 1 }
-        })
 
-        await placeStructureSafe('test2', {
-            start: { x: 0, y: 0, z: 0 },
-            end: { x: 1, y: 1, z: 1 }
-        })
     }
 })
 
