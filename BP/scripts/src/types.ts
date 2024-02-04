@@ -39,3 +39,5 @@ export interface PlacementResult {
     bounds: Bounds
     connectedPosition: Vector3,
 }
+
+export type StructureBranches { data: JigsawBlockData, position: Vector3 }[]
