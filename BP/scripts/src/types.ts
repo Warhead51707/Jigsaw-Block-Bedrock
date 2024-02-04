@@ -40,4 +40,4 @@ export interface PlacementResult {
     connectedPosition: Vector3,
 }
 
-export type StructureBranches { data: JigsawBlockData, position: Vector3 }[]
+export type StructureBranches = { data: JigsawBlockData, offset: Vector3 }[]
