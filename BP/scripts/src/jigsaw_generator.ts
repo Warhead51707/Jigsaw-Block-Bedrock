@@ -1,7 +1,7 @@
 import { world, system, Dimension, Entity, Block, Vector3 } from "@minecraft/server"
-import { JigsawBlockData, TemplatePool, TemplatePoolElement, StructureGenerationData, StructureGenerationDataStructure, PositiveNegativeCorners } from "./types"
+import { JigsawBlockData, TemplatePool, TemplatePoolElement, StructureGenerationData, StructureGenerationDataStructure, PositiveNegativeCorners, PlacementResult, Bounds } from "./types"
 import { templatePools } from "../datapack/template_pools"
-import { weightedRandom } from "./jigsaw_math"
+import { weightedRandom, boundsIntersect } from "./jigsaw_math"
 
 async function waitTick() {
     await new Promise<void>(res => {
@@ -9,71 +9,60 @@ async function waitTick() {
     })
 }
 
-const branchEntities: Entity[] = []
+const queue: { [key: string]: { name: string, bounds: Bounds, resolve: () => void, loading: boolean } } = {}
+let nextQueueId = 0
 
-world.afterEvents.entityLoad.subscribe(async event => {
-    if (event.entity.typeId !== "jigsaw:jigsaw_data") return
+async function placeStructureSafe(name: string, bounds: Bounds) {
+    const task: any = { name, bounds, loading: false }
 
-    const entity: Entity = event.entity
+    const promise = new Promise(resolve => {
+        task.resolve = resolve
+    })
 
-    if (entity.location.y > 260) {
-        entity.remove()
+    const id = nextQueueId
+    nextQueueId++
 
-        return
-    }
+    queue[id] = task
 
-    const data: JigsawBlockData = JSON.parse(entity.getDynamicProperty("jigsawData") as string)
+    await promise
+}
 
-    // This is to stop any logic from running for the jigsaw blocks placed in the template structures
-    if (data.keep) return
+world.afterEvents.worldInitialize.subscribe(event => {
+    system.runInterval(() => {
+        const loadedBounds = Object.values(queue).filter(otherItem => otherItem.loading).map(otherItem => otherItem.bounds)
 
-    // Collision Data Start
-    const jigsawStructureNamespace: string = data.targetName.split(":")[0]
+        for (const id of Object.keys(queue)) {
+            const queueItem = queue[id]
 
-    let structureGenerationData: StructureGenerationData | undefined
+            if (queueItem.loading) continue
 
-    try {
-        structureGenerationData = JSON.parse(world.getDynamicProperty(`structureGenerationData_${jigsawStructureNamespace}`) as string | undefined)
-    } catch (err) {
-        structureGenerationData = undefined
-    }
+            let canLoad = true
 
-    if (structureGenerationData == undefined) {
-        world.setDynamicProperty(`structureGenerationData_${jigsawStructureNamespace}`, JSON.stringify({
-            namespace: jigsawStructureNamespace,
-            structures: []
-        } as StructureGenerationData, null, 4))
+            for (const otherBounds of loadedBounds) {
+                if (!boundsIntersect(queueItem.bounds, otherBounds)) continue
 
-        structureGenerationData = JSON.parse(world.getDynamicProperty(`structureGenerationData_${jigsawStructureNamespace}`) as string) as StructureGenerationData
-    }
+                canLoad = false
 
-    //Collision Data End
+                break
+            }
 
-    // We are a branch jigsaw entity so we track ourselves and skip the code to spawn another branch
-    if (data.targetPool === "minecraft:empty") {
-        branchEntities.push(entity)
+            if (!canLoad) continue
 
-        return
-    }
+            loadedBounds.push(queueItem.bounds)
+            queueItem.loading = true
 
-    const dimension: Dimension = entity.dimension
-    const block: Block = dimension.getBlock(entity.location)
+            world.sendMessage(`Loading ${queueItem.name}`)
 
-    if (block.typeId !== "jigsaw:jigsaw_block") {
-        entity.remove()
+            system.runTimeout(() => {
+                delete queue[id]
+                queueItem.resolve()
+            }, 20)
+        }
+    }, 1)
+})
 
-        return
-    }
-
-    const targetPool: TemplatePool = templatePools.find(pool => pool.id == data.targetPool)
-
-    if (targetPool === undefined) {
-        world.sendMessage("Warning - Bad target pool")
-
-        entity.remove()
-
-        return
-    }
+async function calculatePlacement(source: Entity, targetPool: TemplatePool): Promise<PlacementResult | null> {
+    const dimension = source.dimension
 
     const chosenStructure: TemplatePoolElement = weightedRandom(targetPool.elements)
 
@@ -173,14 +162,65 @@ world.afterEvents.entityLoad.subscribe(async event => {
 
         return
     }
+}
 
-    await dimension.runCommand(`structure load "${chosenStructure.element.location}" ${entity.location.x - offset.x} ${entity.location.y - offset.y} ${entity.location.z - offset.z} ${targetRotation}`)
+world.afterEvents.chatSend.subscribe(async event => {
+    if (event.message === "test") {
+        await placeStructureSafe('test', {
+            start: { x: 0, y: 0, z: 0 },
+            end: { x: 1, y: 1, z: 1 }
+        })
 
-    structureGenerationData.structures.push(structureGenDataStructure)
+        await placeStructureSafe('test2', {
+            start: { x: 0, y: 0, z: 0 },
+            end: { x: 1, y: 1, z: 1 }
+        })
+    }
+})
+
+world.afterEvents.entityLoad.subscribe(async event => {
+    return
+
+    if (event.entity.typeId !== "jigsaw:jigsaw_data") return
+
+    const entity: Entity = event.entity
+    const dimension: Dimension = entity.dimension
+    const block: Block = dimension.getBlock(entity.location)
+
+    //This source entity was loaded as part of the calculate stage so it shouldn't execute
+    if (block.typeId !== "jigsaw:jigsaw_block") return
+
+    const data: JigsawBlockData = JSON.parse(entity.getDynamicProperty("jigsawData") as string)
+
+    // This is to stop any logic from running for the jigsaw blocks placed in the template structures
+    if (data.keep) return
+
+    // This jigsaw has no targetPool to place so we stop here
+    if (data.targetPool === "minecraft:empty") return
+
+    const targetPool: TemplatePool = templatePools.find(pool => pool.id == data.targetPool)
+
+    // target pool could not be found, probably user configuration error
+    if (targetPool === undefined) {
+        world.sendMessage(`Warning - Bad target pool: "${data.targetPool}"`)
+
+        entity.remove()
+
+        return
+    }
+
+    const placement = await calculatePlacement(entity, targetPool)
+
+    if (placement === null) {
+
+    }
+
+    await dimension.runCommand(`structure load "${placement.name}" ${placement.position.x} ${placement.position.y} ${placement.position.z} ${placement.rotation}`)
+    await waitTick()
+
+    const jigsawStructureNamespace: string = data.targetName.split(":")[0]
 
     world.setDynamicProperty(`structureGenerationData_${jigsawStructureNamespace}`, JSON.stringify(structureGenerationData, null, 4))
-
-    await waitTick()
 
     branchEntity = branchEntities.shift()
     branchData = JSON.parse(branchEntity.getDynamicProperty("jigsawData") as string)
