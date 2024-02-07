@@ -8,7 +8,7 @@ export type JigsawBlockData = {
     jointType: "rollable" | "aligned",
     keep: boolean,
 
-    facingDirection: string,
+    orientation: string,
 
     branch: boolean,
 }

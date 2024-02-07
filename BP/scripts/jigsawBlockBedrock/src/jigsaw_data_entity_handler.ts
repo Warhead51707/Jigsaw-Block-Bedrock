@@ -18,7 +18,7 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         targetName: "minecraft:empty",
         turnsInto: "minecraft:air",
         jointType: "rollable",
-        facingDirection: placeJigsaw.block.permutation.getState("minecraft:cardinal_direction") as string,
+        orientation: placeJigsaw.block.permutation.getState("jigsaw:orientation") as string,
         keep: false,
         branch: false
     }

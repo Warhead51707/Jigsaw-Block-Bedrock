@@ -5,7 +5,7 @@
 	"authors": [
 		"warhead"
 	],
-	"targetVersion": "1.20.50",
+	"targetVersion": "1.20.60",
 	"description": "Made by Warhead!",
 	"experimentalGameplay": {
 		"holidayCreatorFeatures": true,

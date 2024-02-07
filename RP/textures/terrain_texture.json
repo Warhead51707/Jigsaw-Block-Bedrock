@@ -4,11 +4,8 @@
 	"resource_pack_name": "testing",
 	"texture_name": "atlas.terrain",
 	"texture_data": {
-		"jigsaw_side_clockwise": {
-			"textures": "textures/blocks/jigsaw_side_clockwise"
-		},
-		"jigsaw_side_counterclockwise": {
-			"textures": "textures/blocks/jigsaw_side_counterclockwise"
+		"jigsaw": {
+			"textures": "textures/blocks/jigsaw"
 		}
 	}
 }
