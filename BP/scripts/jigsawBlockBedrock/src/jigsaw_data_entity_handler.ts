@@ -14,12 +14,12 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
 
     const jigsawData: JigsawBlockData = {
         targetPool: "minecraft:empty",
-        name: "minecraft:empty",
-        targetName: "minecraft:empty",
-        turnsInto: "minecraft:air",
+        name: "jigsaw:tests/stronghold/base/room",
+        targetName: "jigsaw:tests/stronghold/base/room",
+        turnsInto: "minecraft:cobbled_deepslate",
         jointType: "rollable",
         orientation: placeJigsaw.block.permutation.getState("jigsaw:orientation") as string,
-        keep: false,
+        keep: true,
         branch: false
     }
 

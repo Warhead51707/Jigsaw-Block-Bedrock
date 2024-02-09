@@ -35,7 +35,7 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
     jigsawForm.textField("Turns into:", "minecraft:air", jigsawData.turnsInto)
 
     jigsawForm.dropdown("Joint type:", ["rollable", "aligned"], jigsawData.jointType == "rollable" ? 0 : 1)
-    jigsawForm.toggle("Keep? (Only enable after saved)", jigsawData.keep)
+    jigsawForm.toggle("Keep? (DISABLE THIS TOGGLE FOR STRUCTURE SAVE, ENABLE ONCE STRUCTURE HAS BEEN SAVED)", jigsawData.keep)
 
     system.run(() => {
         jigsawForm.show(jigsawInteract.player).then(formData => {

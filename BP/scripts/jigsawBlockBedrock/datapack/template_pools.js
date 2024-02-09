@@ -1,224 +1,94 @@
 export const templatePools = [
     {
-        id: "halls",
+        id: "jigsaw:tests/stronghold/start",
         elements: [
             {
                 weight: 100,
                 element: {
-                    location: "halls/s_10_10_8"
+                    location: "jigsaw:tests/stronghold/start/stairroom_9_9_10"
                 }
-            },
+            }
+        ]
+    },
+    {
+        id: "jigsaw:tests/stronghold/staircase",
+        elements: [
+            {
+                weight: 100,
+                element: {
+                    location: "jigsaw:tests/stronghold/start/staircase_6_13_11"
+                }
+            }
+        ]
+    },
+    {
+        id: "jigsaw:tests/stronghold/main_rooms",
+        elements: [
+            {
+                weight: 100,
+                element: {
+                    location: "jigsaw:tests/stronghold/rooms/main/mainroom_13_6_22"
+                }
+            }
+        ]
+    },
+    {
+        id: "jigsaw:tests/stronghold/rooms",
+        elements: [
             {
                 weight: 40,
                 element: {
-                    location: "halls/t_10_10_10"
+                    location: "jigsaw:tests/stronghold/rooms/hall/hallway_5_5_15"
                 }
             },
             {
                 weight: 20,
                 element: {
-                    location: "halls/c_11_10_12"
+                    location: "jigsaw:tests/stronghold/rooms/hall/Thallway_5_5_15"
                 }
             },
             {
-                weight: 1,
+                weight: 5,
                 element: {
-                    location: "halls/e_1_10_10"
-                }
-            },
-            {
-                weight: 1,
-                element: {
-                    location: "halls/e2_1_10_10"
-                }
-            },
-        ]
-    },
-    {
-        id: "pathway:paths",
-        elements: [
-            {
-                weight: 45,
-                element: {
-                    location: "pathway:deepslate-3_2_5"
-                }
-            },
-            {
-                weight: 45,
-                element: {
-                    location: "pathway:gold-3_2_5"
+                    location: "jigsaw:tests/stronghold/rooms/main/mainroom_13_6_22"
                 }
             },
             {
                 weight: 10,
                 element: {
-                    location: "pathway:purpur-3_2_5"
+                    location: "jigsaw:tests/stronghold/rooms/passthroughs/jailhouse_17_5_18"
+                }
+            },
+            {
+                weight: 15,
+                element: {
+                    location: "jigsaw:tests/stronghold/rooms/passthroughs/pit_11_11_20"
+                }
+            },
+            {
+                weight: 17,
+                element: {
+                    location: "jigsaw:tests/stronghold/rooms/treasure/crafting_9_5_10"
+                }
+            },
+            {
+                weight: 20,
+                element: {
+                    location: "jigsaw:tests/stronghold/rooms/treasure/library_9_5_13"
+                }
+            },
+            {
+                weight: 10,
+                element: {
+                    location: "jigsaw:tests/stronghold/rooms/treasure/oldcake_9_5_9"
+                }
+            },
+            {
+                weight: 14,
+                element: {
+                    location: "jigsaw:tests/stronghold/rooms/treasure/orestorage_9_5_10"
                 }
             }
-        ]
-    },
-    {
-        id: "roosey:mangrove_hut/outdoors",
-        elements: [
-            {
-                weight: 8,
-                element: {
-                    location: "roosey:mangrove_hut/outdoor_0"
-                }
-            },
-            {
-                weight: 4,
-                element: {
-                    location: "roosey:mangrove_hut/outdoor_1"
-                }
-            },
-            {
-                weight: 1,
-                element: {
-                    location: "roosey:mangrove_hut/note_block"
-                }
-            },
-            {
-                weight: 1,
-                element: {
-                    location: "roosey:mangrove_hut/oyasumi"
-                }
-            },
-            {
-                weight: 1,
-                element: {
-                    location: "roosey:mangrove_hut/gate"
-                }
-            }
-        ]
-    },
-    {
-        id: "roosey:mangrove_hut/houses",
-        elements: [
-            {
-                weight: 1,
-                element: {
-                    location: "roosey:mangrove_hut/note_block"
-                }
-            },
-            {
-                weight: 1,
-                element: {
-                    location: "roosey:mangrove_hut/oyasumi"
-                }
-            },
-            {
-                weight: 1,
-                element: {
-                    location: "roosey:mangrove_hut/gate"
-                }
-            }
-        ]
-    },
-    {
-        id: "end_spire:end_spire_pool",
-        elements: [
-            {
-                weight: 10,
-                element: {
-                    location: "anthrax:end_spire_bulb"
-                }
-            }, {
-                weight: 10,
-                element: {
-                    location: "anthrax:end_spire_clamber_1"
-                }
-            }, {
-                weight: 10,
-                element: {
-                    location: "anthrax:end_spire_clamber_2"
-                }
-            }, {
-                weight: 10,
-                element: {
-                    location: "anthrax:end_spire_clamber_3"
-                }
-            }, {
-                weight: 1,
-                element: {
-                    location: "anthrax:end_spire_end_1"
-                }
-            }, {
-                weight: 1,
-                element: {
-                    location: "anthrax:end_spire_end_2"
-                }
-            },
-            {
-                weight: 10,
-                element: {
-                    location: "anthrax:end_spire_stairs"
-                }
-            }
-        ]
-    },
-    {
-        id: "test:shapes",
-        elements: [
-            {
-                weight: 60,
-                element: {
-                    location: "test:shapes/oak_planks"
-                }
-            },
-            {
-                weight: 50,
-                element: {
-                    location: "test:shapes/iron_block"
-                }
-            },
-            {
-                weight: 50,
-                element: {
-                    location: "test:shapes/bamboo_planks"
-                }
-            },
-            {
-                weight: 50,
-                element: {
-                    location: "test:shapes/cherry_planks"
-                }
-            }
-        ]
-    },
-    {
-        id: "ruins",
-        elements: [
-            {
-                weight: 50,
-                element: {
-                    location: "ruins/wall"
-                }
-            },
-            {
-                weight: 50,
-                element: {
-                    location: "ruins/wall_left"
-                }
-            },
-            {
-                weight: 50,
-                element: {
-                    location: "ruins/wall_right"
-                }
-            },
-            {
-                weight: 50,
-                element: {
-                    location: "ruins/space"
-                }
-            },
-            {
-                weight: 30,
-                element: {
-                    location: "ruins/end"
-                }
-            },
         ]
     }
 ]
