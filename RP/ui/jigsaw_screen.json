@@ -47,17 +47,7 @@
 	},
 	"jigsaw_scrolling_content": {
 		"type": "stack_panel",
-		"size": [
-			"100% - 4px",
-			"100%c"
-		],
-		"offset": [
-			2,
-			0
-		],
 		"orientation": "vertical",
-		"anchor_from": "top_left",
-		"anchor_to": "top_left",
 		"controls": [
 			{
 				"generated_form@kekecreations_jigsaw.generated_contents": {}
@@ -120,13 +110,7 @@
 	},
 	"generated_contents": {
 		"type": "stack_panel",
-		"size": [
-			"100%",
-			"100%c"
-		],
 		"orientation": "vertical",
-		"anchor_from": "top_left",
-		"anchor_to": "top_left",
 		"factory": {
 			"name": "buttons",
 			"control_ids": {
@@ -262,11 +246,11 @@
 		"type": "panel",
 		"size": [
 			0,
-			22
+			18
 		]
 	},
 	"jigsaw_screen@common.base_screen": {
-		"$screen_content": "kekecreations_jigsaw.scroll_panel",
+		"$screen_content": "kekecreations_jigsaw.jigsaw_screen_content",
 		"$screen_bg_content": "kekecreations_jigsaw.background"
 	},
 	"background@common.screen_background": {
@@ -276,11 +260,9 @@
 		]
 	},
 	"scroll_panel@common.scrolling_panel": {
-		"anchor_to": "top_left",
-		"anchor_from": "top_left",
 		"$show_background": false,
 		"size": [
-			525,
+			500,
 			275
 		],
 		"$scrolling_content": "kekecreations_jigsaw.jigsaw_scrolling_content",
@@ -292,13 +274,21 @@
 			"60%",
 			"220%"
 		],
-		"$scrolling_pane_offset": [
-			"-30%",
-			"-46%"
-		],
 		"$scroll_bar_right_padding_size": [
 			0,
 			0
+		]
+	},
+	"jigsaw_screen_content": {
+		"type": "stack_panel",
+		"size": [
+			300,
+			250
+		],
+		"controls": [
+			{
+				"panel@kekecreations_jigsaw.scroll_panel": {}
+			}
 		]
 	}
 }
