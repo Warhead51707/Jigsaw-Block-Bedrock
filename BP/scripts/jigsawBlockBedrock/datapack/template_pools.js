@@ -36,15 +36,9 @@ export const templatePools = [
         id: "jigsaw:tests/stronghold/rooms",
         elements: [
             {
-                weight: 40,
+                weight: 35,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/hall/hallway_5_5_15"
-                }
-            },
-            {
-                weight: 20,
-                element: {
-                    location: "jigsaw:tests/stronghold/rooms/hall/Thallway_5_5_15"
                 }
             },
             {
@@ -54,7 +48,7 @@ export const templatePools = [
                 }
             },
             {
-                weight: 10,
+                weight: 15,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/passthroughs/jailhouse_17_5_18"
                 }
@@ -62,17 +56,17 @@ export const templatePools = [
             {
                 weight: 15,
                 element: {
-                    location: "jigsaw:tests/stronghold/rooms/passthroughs/pit_11_11_20"
+                    location: "jigsaw:tests/stronghold/rooms/passthroughs/pit_11_12_20"
                 }
             },
             {
-                weight: 17,
+                weight: 13,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/treasure/crafting_9_5_10"
                 }
             },
             {
-                weight: 20,
+                weight: 15,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/treasure/library_9_5_13"
                 }
@@ -84,7 +78,7 @@ export const templatePools = [
                 }
             },
             {
-                weight: 14,
+                weight: 18,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/treasure/orestorage_9_5_10"
                 }

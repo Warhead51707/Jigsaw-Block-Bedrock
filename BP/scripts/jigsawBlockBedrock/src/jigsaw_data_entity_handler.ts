@@ -1,5 +1,6 @@
 import { world, system, Dimension, Entity } from "@minecraft/server"
-import { JigsawBlockData } from "./types"
+import { JigsawBlockData, JigsawMacroData } from "./types"
+import { getMacroData } from "./jigsaw_macro"
 
 world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
     if (placeJigsaw.block.typeId != "jigsaw:jigsaw_block") return;
@@ -12,14 +13,44 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         z: placeJigsaw.block.location.z + 0.5
     })
 
-    const jigsawData: JigsawBlockData = {
+    const facingDirectionMap = new Map()
+    facingDirectionMap.set("north_up", "north")
+    facingDirectionMap.set("east_up", "east")
+    facingDirectionMap.set("south_up", "south")
+    facingDirectionMap.set("west_up", "west")
+
+    placeJigsaw.block.setPermutation(placeJigsaw.block.permutation.withState('minecraft:cardinal_direction', facingDirectionMap.get(placeJigsaw.block.permutation.getState("jigsaw:orientation") as string)))
+
+    let jigsawMacroData: JigsawMacroData = {
+        macroEnabled: true,
+        macroOwner: placeJigsaw.player.name,
         targetPool: "minecraft:empty",
-        name: "jigsaw:tests/stronghold/base/room",
-        targetName: "jigsaw:tests/stronghold/base/room",
-        turnsInto: "minecraft:cobbled_deepslate",
+        name: "minecraft:empty",
+        targetName: "minecraft:empty",
+        turnsInto: "minecraft:air",
         jointType: "rollable",
+        keep: true
+    }
+
+    const macroData: JigsawMacroData[] = getMacroData()
+
+    if (macroData.length != 0) {
+        for (const macro of macroData) {
+            if (macro.macroOwner == placeJigsaw.player.name && macro.macroEnabled) jigsawMacroData = macro
+
+            break
+        }
+    } else macroData.push(jigsawMacroData)
+
+    const jigsawData: JigsawBlockData = {
+        targetPool: jigsawMacroData.targetPool,
+        name: jigsawMacroData.name,
+        targetName: jigsawMacroData.targetName,
+        turnsInto: jigsawMacroData.turnsInto,
+        jointType: jigsawMacroData.jointType,
+        cardinalDirection: placeJigsaw.block.permutation.getState("minecraft:cardinal_direction") as string,
         orientation: placeJigsaw.block.permutation.getState("jigsaw:orientation") as string,
-        keep: true,
+        keep: jigsawMacroData.keep,
         branch: false
     }
 

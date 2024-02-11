@@ -1,5 +1,16 @@
 import { Vector3 } from "@minecraft/server"
 
+export type JigsawMacroData = {
+    macroEnabled: boolean,
+    macroOwner: string,
+    targetPool: string,
+    name: string,
+    targetName: string,
+    turnsInto: string,
+    jointType: "rollable" | "aligned",
+    keep: boolean
+}
+
 export type JigsawBlockData = {
     targetPool: string,
     name: string,
@@ -8,6 +19,7 @@ export type JigsawBlockData = {
     jointType: "rollable" | "aligned",
     keep: boolean,
 
+    cardinalDirection: string,
     orientation: string,
 
     branch: boolean,

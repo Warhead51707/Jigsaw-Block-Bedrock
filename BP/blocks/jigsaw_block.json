@@ -6,10 +6,28 @@
             "states": {
                 "jigsaw:orientation": [
                     "icon_setup", // Used for the icon
-                    "north_up", "south_up", "west_up", "east_up", // Horizontal
-                    "up_north", "up_south", "up_west", "up_east", // Vertical - Top Face
-                    "down_north", "down_south", "down_west", "down_east" // Vertical - Bottom Face
+                    "north_up",
+                    "south_up",
+                    "west_up",
+                    "east_up", // Horizontal
+                    "up_north",
+                    "up_south",
+                    "up_west",
+                    "up_east", // Vertical - Top Face
+                    "down_north",
+                    "down_south",
+                    "down_west",
+                    "down_east" // Vertical - Bottom Face
                 ]
+            },
+            "traits": {
+                "minecraft:placement_direction": {
+                    "enabled_states": [
+                        "minecraft:cardinal_direction",
+                        "minecraft:facing_direction"
+                    ],
+                    "y_rotation_offset": 180
+                }
             }
         },
         "components": {
@@ -36,7 +54,11 @@
                 "condition": "q.block_state('jigsaw:orientation') == 'icon_setup'",
                 "components": {
                     "minecraft:transformation": {
-                        "rotation": [0, 180, 0]
+                        "rotation": [
+                            0,
+                            180,
+                            0
+                        ]
                     }
                 }
             },
@@ -88,7 +110,6 @@
                     }
                 }
             },
-
             {
                 "condition": "q.block_state('jigsaw:orientation') == 'up_north'",
                 "components": {
@@ -113,7 +134,6 @@
                     }
                 }
             },
-
             {
                 "condition": "q.block_state('jigsaw:orientation') == 'up_west'",
                 "components": {
@@ -138,7 +158,6 @@
                     }
                 }
             },
-
             {
                 "condition": "q.block_state('jigsaw:orientation') == 'down_north'",
                 "components": {

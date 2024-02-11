@@ -197,39 +197,39 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
         const branches = await getBranches(chosenStructure.element.location, position, bounds, dimension)
         const possibleBranches = shuffle(branches.filter(branch => branch.data.name === data.targetName)) as StructureBranches
 
-        const sourceRotation = dimension.getBlock(position).permutation.getState('jigsaw:orientation')
+        const sourceRotation = dimension.getBlock(position).permutation.getState('minecraft:cardinal_direction')
 
         const validPlacements: PlacementResult[] = []
 
         for (const branch of possibleBranches) {
             let targetRotation: '0_degrees' | '90_degrees' | '180_degrees' | '270_degrees' = '0_degrees'
 
-            if (branch.data.orientation === 'north_up') {
-                if (sourceRotation === 'north_up') targetRotation = '180_degrees'
-                if (sourceRotation === 'east_up') targetRotation = '270_degrees'
-                if (sourceRotation === 'west_up') targetRotation = '90_degrees'
-                if (sourceRotation === 'south_up') targetRotation = '0_degrees'
+            if (branch.data.cardinalDirection === 'north') {
+                if (sourceRotation === 'north') targetRotation = '180_degrees'
+                if (sourceRotation === 'east') targetRotation = '270_degrees'
+                if (sourceRotation === 'west') targetRotation = '90_degrees'
+                if (sourceRotation === 'south') targetRotation = '0_degrees'
             }
 
-            if (branch.data.orientation === 'east_up') {
-                if (sourceRotation === 'north_up') targetRotation = '90_degrees'
-                if (sourceRotation === 'east_up') targetRotation = '180_degrees'
-                if (sourceRotation === 'west_up') targetRotation = '0_degrees'
-                if (sourceRotation === 'south_up') targetRotation = '270_degrees'
+            if (branch.data.cardinalDirection === 'east') {
+                if (sourceRotation === 'north') targetRotation = '90_degrees'
+                if (sourceRotation === 'east') targetRotation = '180_degrees'
+                if (sourceRotation === 'west') targetRotation = '0_degrees'
+                if (sourceRotation === 'south') targetRotation = '270_degrees'
             }
 
-            if (branch.data.orientation === 'west_up') {
-                if (sourceRotation === 'north_up') targetRotation = '270_degrees'
-                if (sourceRotation === 'east_up') targetRotation = '0_degrees'
-                if (sourceRotation === 'west_up') targetRotation = '180_degrees'
-                if (sourceRotation === 'south_up') targetRotation = '90_degrees'
+            if (branch.data.cardinalDirection === 'west') {
+                if (sourceRotation === 'north') targetRotation = '270_degrees'
+                if (sourceRotation === 'east') targetRotation = '0_degrees'
+                if (sourceRotation === 'west') targetRotation = '180_degrees'
+                if (sourceRotation === 'south') targetRotation = '90_degrees'
             }
 
-            if (branch.data.orientation === 'south_up') {
-                if (sourceRotation === 'north_up') targetRotation = '0_degrees'
-                if (sourceRotation === 'east_up') targetRotation = '90_degrees'
-                if (sourceRotation === 'west_up') targetRotation = '270_degrees'
-                if (sourceRotation === 'south_up') targetRotation = '180_degrees'
+            if (branch.data.cardinalDirection === 'south') {
+                if (sourceRotation === 'north') targetRotation = '0_degrees'
+                if (sourceRotation === 'east') targetRotation = '90_degrees'
+                if (sourceRotation === 'west') targetRotation = '270_degrees'
+                if (sourceRotation === 'south') targetRotation = '180_degrees'
             }
 
             let branchOffset = branch.offset
@@ -276,19 +276,19 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 z: -1,
             }
 
-            if (sourceRotation === 'east_up') sourceOffset = {
+            if (sourceRotation === 'east') sourceOffset = {
                 x: 1,
                 y: 0,
                 z: 0,
             }
 
-            if (sourceRotation === 'south_up') sourceOffset = {
+            if (sourceRotation === 'south') sourceOffset = {
                 x: 0,
                 y: 0,
                 z: 1,
             }
 
-            if (sourceRotation === 'west_up') sourceOffset = {
+            if (sourceRotation === 'west') sourceOffset = {
                 x: -1,
                 y: 0,
                 z: 0,
