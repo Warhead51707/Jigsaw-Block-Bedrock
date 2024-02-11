@@ -48,31 +48,86 @@ world.afterEvents.worldInitialize.subscribe(event => {
 
             const boundingBoxes = getPlacedBounds()
 
-            for (let x = -5; x <= 5; x += 1) {
-                for (let y = -5; y <= 5; y += 1) {
-                    for (let z = -5; z <= 5; z += 1) {
-                        let intersect = false
+            for (const bounds of boundingBoxes) {
+                try {
+                    for (let x = 0; x <= bounds.size.x; x++) {
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x + x,
+                            y: bounds.start.y,
+                            z: bounds.start.z,
+                        })
 
-                        const position = {
-                            x: player.location.x + x,
-                            y: player.location.y + y,
-                            z: player.location.z + z,
-                        }
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x + x,
+                            y: bounds.start.y,
+                            z: bounds.start.z + bounds.size.z,
+                        })
 
-                        for (const bounds of boundingBoxes) {
-                            if (!boundsIntersect({ start: position, size: { x: 0, y: 0, z: 0 } }, bounds)) continue
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x + x,
+                            y: bounds.start.y + bounds.size.y,
+                            z: bounds.start.z,
+                        })
 
-                            intersect = true
-
-                            break
-                        }
-
-                        if (!intersect) continue
-
-                        // player.dimension.spawnParticle('minecraft:sonic_explosion', position)
-                        player.dimension.spawnParticle('minecraft:basic_flame_particle', position)
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x + x,
+                            y: bounds.start.y + bounds.size.y,
+                            z: bounds.start.z + bounds.size.z,
+                        })
                     }
-                }
+
+                    for (let z = 0; z <= bounds.size.z; z++) {
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x,
+                            y: bounds.start.y,
+                            z: bounds.start.z + z,
+                        })
+
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x + bounds.size.x,
+                            y: bounds.start.y,
+                            z: bounds.start.z + z,
+                        })
+
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x,
+                            y: bounds.start.y + bounds.size.y,
+                            z: bounds.start.z + z,
+                        })
+
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x + bounds.size.x,
+                            y: bounds.start.y + bounds.size.y,
+                            z: bounds.start.z + z,
+                        })
+                    }
+
+                    for (let y = 0; y <= bounds.size.y; y++) {
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x,
+                            y: bounds.start.y + y,
+                            z: bounds.start.z,
+                        })
+
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x + bounds.size.x,
+                            y: bounds.start.y + y,
+                            z: bounds.start.z,
+                        })
+
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x,
+                            y: bounds.start.y + y,
+                            z: bounds.start.z + bounds.size.z,
+                        })
+
+                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                            x: bounds.start.x + bounds.size.x,
+                            y: bounds.start.y + y,
+                            z: bounds.start.z + bounds.size.z,
+                        })
+                    }
+                } catch { }
             }
         }
     }, 20)
