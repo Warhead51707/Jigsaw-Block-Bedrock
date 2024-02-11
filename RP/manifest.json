@@ -3,15 +3,7 @@
 	"metadata": {
 		"authors": [
 			"warhead"
-		],
-		"generated_with": {
-			"bridge": [
-				"2.7.11"
-			],
-			"dash": [
-				"github:bridge-core/dash-compiler#8fa35c73292f6382747d0f411fca26431a6d2c8e"
-			]
-		}
+		]
 	},
 	"header": {
 		"name": "Jigsaw Block Bedrock (RP)",
@@ -19,7 +11,7 @@
 		"min_engine_version": [
 			1,
 			20,
-			50
+			60
 		],
 		"uuid": "cd6901b7-b8d5-4fe7-8708-e51713cb2ffc",
 		"version": [
