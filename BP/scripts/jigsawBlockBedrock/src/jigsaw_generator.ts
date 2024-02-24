@@ -370,14 +370,21 @@ async function generate(source: Entity) {
         return
     }
 
-    const placement = await getPlacement(position, dimension, data, targetPool)
+    if (targetPool.elements.length == 0) return
 
-    if (placement === null) {
-        block.setType(data.turnsInto)
+    let placement = await getPlacement(position, dimension, data, targetPool)
 
-        // world.sendMessage('No valid placement found!')
+    // fallbacks
+    while (placement == null) {
+        const fallbackPool: TemplatePool = templatePools.find(pool => pool.id == targetPool.fallback)
 
-        return
+        if (fallbackPool == undefined || fallbackPool.elements.length == 0 || fallbackPool.id == "minecraft:empty") {
+            block.setType(data.turnsInto)
+
+            return
+        }
+
+        placement = await getPlacement(position, dimension, data, fallbackPool)
     }
 
     block.setType(data.turnsInto)

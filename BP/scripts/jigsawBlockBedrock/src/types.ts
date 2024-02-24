@@ -27,6 +27,7 @@ export type JigsawBlockData = {
 
 export type TemplatePool = {
     id: string,
+    fallback: string,
     elements: TemplatePoolElement[]
 }
 

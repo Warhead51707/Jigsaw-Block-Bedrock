@@ -1,6 +1,19 @@
 export const templatePools = [
     {
+        id: "jigsaw:empty",
+        fallback: "jigsaw:empty",
+        elements: [
+            {
+                weight: 100,
+                element: {
+                    location: "jigsaw:tests/stronghold/rooms/fallback/wall_3_4_1"
+                }
+            }
+        ]
+    },
+    {
         id: "jigsaw:tests/stronghold/start",
+        fallback: "jigsaw:empty",
         elements: [
             {
                 weight: 100,
@@ -12,6 +25,7 @@ export const templatePools = [
     },
     {
         id: "jigsaw:tests/stronghold/staircase",
+        fallback: "jigsaw:empty",
         elements: [
             {
                 weight: 100,
@@ -23,6 +37,7 @@ export const templatePools = [
     },
     {
         id: "jigsaw:tests/stronghold/main_rooms",
+        fallback: "jigsaw:empty",
         elements: [
             {
                 weight: 100,
@@ -34,53 +49,84 @@ export const templatePools = [
     },
     {
         id: "jigsaw:tests/stronghold/rooms",
+        fallback: "jigsaw:empty",
         elements: [
             {
-                weight: 35,
+                weight: 0,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/hall/hallway_5_5_15"
                 }
             },
             {
-                weight: 5,
+                weight: 50,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/main/mainroom_13_6_22"
                 }
             },
             {
-                weight: 15,
+                weight: 0,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/passthroughs/jailhouse_17_5_18"
                 }
             },
             {
-                weight: 15,
+                weight: 0,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/passthroughs/pit_11_12_20"
                 }
             },
             {
-                weight: 13,
+                weight: 0,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/treasure/crafting_9_5_10"
                 }
             },
             {
-                weight: 15,
+                weight: 5,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/treasure/library_9_5_13"
                 }
             },
             {
-                weight: 10,
+                weight: 8,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/treasure/oldcake_9_5_9"
                 }
             },
             {
-                weight: 18,
+                weight: 5,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/treasure/orestorage_9_5_10"
+                }
+            }
+        ]
+    },
+    {
+        id: "example:streets/fallback",
+        fallback: "minecraft:empty",
+        elements: [
+            {
+                weight: 100,
+                element: {
+                    location: "jigsaw:tests/streets/street_end_5_5_1"
+                }
+            }
+        ]
+    },
+    {
+        id: "example:streets",
+        fallback: "example:streets/fallback",
+        elements: [
+            {
+                weight: 50,
+                element: {
+                    location: "jigsaw:tests/streets/street_1_9_5_9"
+                }
+            },
+            {
+                weight: 50,
+                element: {
+                    location: "jigsaw:tests/streets/street_1_17_5_9"
                 }
             }
         ]
