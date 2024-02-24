@@ -1,7 +1,7 @@
 import { world, Dimension, Entity, Block, Vector3, system } from '@minecraft/server'
 import { JigsawBlockData, TemplatePool, TemplatePoolElement, PlacementResult, Bounds, StructureBranches } from './types'
 import { templatePools } from '../datapack/template_pools'
-import { weightedRandom, boundsIntersect } from './jigsaw_math'
+import { weightedRandom, boundsIntersect, boundsFit } from './jigsaw_math'
 import { placeStructureAndGetEntities } from './smart_queue'
 
 function parseSize(name: string): Vector3 {
@@ -309,7 +309,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
             let canPlace = true
             for (const otherBounds of placedBounds) {
-                if (!boundsIntersect(placementBounds, otherBounds)) continue
+                if (!boundsIntersect(placementBounds, otherBounds) && !boundsFit(placementBounds, otherBounds)) continue
 
                 canPlace = false
 

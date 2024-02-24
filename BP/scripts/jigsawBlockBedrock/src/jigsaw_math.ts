@@ -19,3 +19,11 @@ export function boundsIntersect(a: Bounds, b: Bounds) {
 
     return xAxisIntersect && yAxisIntersect && zAxisIntersect
 }
+
+export function boundsFit(smallerBounds: Bounds, largerBounds: Bounds) {
+    let xAxisFits = (smallerBounds.start.x > largerBounds.start.x) && (smallerBounds.start.x + smallerBounds.size.x < largerBounds.start.x + largerBounds.size.x)
+    let yAxisFits = (smallerBounds.start.y > largerBounds.start.y) && (smallerBounds.start.y + smallerBounds.size.y < largerBounds.start.y + largerBounds.size.y)
+    let zAxisFits = (smallerBounds.start.z > largerBounds.start.z) && (smallerBounds.start.z + smallerBounds.size.z < largerBounds.start.z + largerBounds.size.z)
+
+    return xAxisFits && yAxisFits && zAxisFits
+}
