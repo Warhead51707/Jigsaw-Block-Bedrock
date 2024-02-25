@@ -142,5 +142,17 @@ export const templatePools = [
                 }
             }
         ]
+    },
+    {
+        id: "example:dice_house/furniture",
+        fallback: "minecraft:empty",
+        elements: [
+            {
+                weight: 1,
+                element: {
+                    location: "diorite_sofa_3_2_2"
+                }
+            }
+        ]
     }
 ]
