@@ -3,14 +3,14 @@
 
 (All content is subject to change)
 
-![alt text](https://media.discordapp.net/attachments/1199061067142270976/1204608915254546513/HallJigsawExample.gif?ex=65d55a79&is=65c2e579&hm=2433886a66e8fa86c9fa9dcfb3a94ffba99ddbe3f26eb6dd2b650d965f80227a&=)
+![alt text](https://media.discordapp.net/attachments/894269220509081712/1206121191656390706/HallJigsawExample.gif?ex=65e41564&is=65d1a064&hm=e1fe02d98feb4fdbaa9524eddf39f94a2f1e9898c9a0c7dd2f8814187c2922f3&=)
 
 # ❓ What is this?
 This project aims to port the Jigsaw block from Java edition into Bedrock. The current system we have for Bedrock is very powerful on its own & reflects a large portion of the Java system. Please keep in mind that not all features from the Java system are available for Bedrock.
 
 If you are not familiar with the Jigsaw block, I highly suggest you take the time to read this [wiki page](https://minecraft.fandom.com/wiki/Jigsaw_Block).
 
-![alt text](https://media.discordapp.net/attachments/894269220509081712/1204613734778281995/latest.png?ex=65d55ef7&is=65c2e9f7&hm=dc4be4df6bf2a19e20cade492c4678f19c029d2559297c46819e810ecdab4885&=&format=webp&quality=lossless)
+![alt text](https://i.imgur.com/qiZ5tzS.png)
 
 # 🧩 What can I make with the library right now?
 Jigsaw Block Bedrock offers many of the same features as Java Edition's Jigsaw block and we believe that JBB is close to being just as powerful. 
@@ -19,11 +19,15 @@ Jigsaw Block Bedrock offers many of the same features as Java Edition's Jigsaw b
 
 Currently, the library is packed with, 
 
-- 4 direction Jigsaw blocks (Up and Down not yet supported, coming soon)
+- Accurate (90%) port of Java edition's Jigsaw system, including Template Pools
 - Automatic structure rotation and offset adjustment
 - Automatic structure collision detection
+- Built with map makers in mind, easy to use macro/"pick block" system
+- Compatible with any Add-On
+- No experimental gameplay toggles required
+- Preview support
 - Simple Jigsaw UI
-- Multiple test structures
+- Multiple test structures & examples
 - Node JS automatic install script
 
 # ❗ Where can I get help/track the project?
