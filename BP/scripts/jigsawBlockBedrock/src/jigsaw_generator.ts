@@ -1,7 +1,7 @@
 import { world, Dimension, Entity, Block, Vector3, system } from '@minecraft/server'
 import { JigsawBlockData, TemplatePool, TemplatePoolElement, PlacementResult, Bounds, StructureBranches } from './types'
 import { templatePools } from '../datapack/template_pools'
-import { weightedRandom, boundsIntersect, boundsFit } from './jigsaw_math'
+import { weightedRandom, boundsIntersect, boundsFit, randomMinMax } from './jigsaw_math'
 import { placeStructureAndGetEntities } from './smart_queue'
 
 function parseSize(name: string): Vector3 {
@@ -197,46 +197,86 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
         const branches = await getBranches(chosenStructure.element.location, position, bounds, dimension)
         const possibleBranches = shuffle(branches.filter(branch => branch.data.name === data.targetName)) as StructureBranches
 
-        const sourceRotation = dimension.getBlock(position).permutation.getState('minecraft:block_face')
+        const sourceBlockFace = dimension.getBlock(position).permutation.getState('minecraft:block_face')
+        const sourceCardinalDirection = dimension.getBlock(position).permutation.getState('minecraft:cardinal_direction')
 
         const validPlacements: PlacementResult[] = []
 
         for (const branch of possibleBranches) {
             let targetRotation: '0_degrees' | '90_degrees' | '180_degrees' | '270_degrees' = '0_degrees'
 
-            if (branch.data.cardinalDirection === 'north') {
-                if (sourceRotation === 'north') targetRotation = '180_degrees'
-                if (sourceRotation === 'east') targetRotation = '270_degrees'
-                if (sourceRotation === 'west') targetRotation = '90_degrees'
-                if (sourceRotation === 'south') targetRotation = '0_degrees'
+            if (branch.data.blockFace === 'north') {
+                if (sourceBlockFace === 'north') targetRotation = '180_degrees'
+                if (sourceBlockFace === 'east') targetRotation = '270_degrees'
+                if (sourceBlockFace === 'west') targetRotation = '90_degrees'
+                if (sourceBlockFace === 'south') targetRotation = '0_degrees'
             }
 
-            if (branch.data.cardinalDirection === 'east') {
-                if (sourceRotation === 'north') targetRotation = '90_degrees'
-                if (sourceRotation === 'east') targetRotation = '180_degrees'
-                if (sourceRotation === 'west') targetRotation = '0_degrees'
-                if (sourceRotation === 'south') targetRotation = '270_degrees'
+            if (branch.data.blockFace === 'east') {
+                if (sourceBlockFace === 'north') targetRotation = '90_degrees'
+                if (sourceBlockFace === 'east') targetRotation = '180_degrees'
+                if (sourceBlockFace === 'west') targetRotation = '0_degrees'
+                if (sourceBlockFace === 'south') targetRotation = '270_degrees'
             }
 
-            if (branch.data.cardinalDirection === 'west') {
-                if (sourceRotation === 'north') targetRotation = '270_degrees'
-                if (sourceRotation === 'east') targetRotation = '0_degrees'
-                if (sourceRotation === 'west') targetRotation = '180_degrees'
-                if (sourceRotation === 'south') targetRotation = '90_degrees'
+            if (branch.data.blockFace === 'west') {
+                if (sourceBlockFace === 'north') targetRotation = '270_degrees'
+                if (sourceBlockFace === 'east') targetRotation = '0_degrees'
+                if (sourceBlockFace === 'west') targetRotation = '180_degrees'
+                if (sourceBlockFace === 'south') targetRotation = '90_degrees'
             }
 
-            if (branch.data.cardinalDirection === 'south') {
-                if (sourceRotation === 'north') targetRotation = '0_degrees'
-                if (sourceRotation === 'east') targetRotation = '90_degrees'
-                if (sourceRotation === 'west') targetRotation = '270_degrees'
-                if (sourceRotation === 'south') targetRotation = '180_degrees'
+            if (branch.data.blockFace === 'south') {
+                if (sourceBlockFace === 'north') targetRotation = '0_degrees'
+                if (sourceBlockFace === 'east') targetRotation = '90_degrees'
+                if (sourceBlockFace === 'west') targetRotation = '270_degrees'
+                if (sourceBlockFace === 'south') targetRotation = '180_degrees'
             }
 
-            if (branch.data.cardinalDirection === 'up' || branch.data.cardinalDirection === 'down') targetRotation = '0_degrees'
+            if (branch.data.jointType === "aligned" && data.jointType === "aligned") {
+                if (branch.data.cardinalDirection === "north") {
+                    if (sourceCardinalDirection === "north") targetRotation = '0_degrees'
+                    if (sourceCardinalDirection === "east") targetRotation = '90_degrees'
+                    if (sourceCardinalDirection === "west") targetRotation = '270_degrees'
+                    if (sourceCardinalDirection === "south") targetRotation = '180_degrees'
+                }
+
+                if (branch.data.cardinalDirection === "east") {
+                    if (sourceCardinalDirection === "north") targetRotation = '270_degrees'
+                    if (sourceCardinalDirection === "east") targetRotation = '0_degrees'
+                    if (sourceCardinalDirection === "west") targetRotation = '180_degrees'
+                    if (sourceCardinalDirection === "south") targetRotation = '90_degrees'
+                }
+
+                if (branch.data.cardinalDirection === "west") {
+                    if (sourceCardinalDirection === "north") targetRotation = '90_degrees'
+                    if (sourceCardinalDirection === "east") targetRotation = '180_degrees'
+                    if (sourceCardinalDirection === "west") targetRotation = '0_degrees'
+                    if (sourceCardinalDirection === "south") targetRotation = '270_degrees'
+                }
+
+                if (branch.data.cardinalDirection === "south") {
+                    if (sourceCardinalDirection === "north") targetRotation = '180_degrees'
+                    if (sourceCardinalDirection === "east") targetRotation = '270_degrees'
+                    if (sourceCardinalDirection === "west") targetRotation = '90_degrees'
+                    if (sourceCardinalDirection === "south") targetRotation = '0_degrees'
+                }
+            }
+
+            const upOrDown = (branch.data.blockFace === "up" || branch.data.blockFace === "down")
+
+
+            if (branch.data.jointType === "rollable" && upOrDown) {
+                const rotations = ['0_degrees', '90_degrees', '180_degrees', '270_degrees']
+
+                const randomIndex = randomMinMax(0, rotations.length - 1)
+
+                targetRotation = rotations[randomIndex] as any
+            }
 
             let branchOffset = branch.offset
 
-            if (targetRotation === '90_degrees') {
+            if (targetRotation === '90_degrees' && !upOrDown) {
                 branchOffset = {
                     x: bounds.size.z - branchOffset.z - 1,
                     y: branchOffset.y,
@@ -250,7 +290,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 }
             }
 
-            if (targetRotation === '180_degrees') {
+            if (targetRotation === '180_degrees' && !upOrDown) {
                 branchOffset = {
                     x: bounds.size.x - branchOffset.x - 1,
                     y: branchOffset.y,
@@ -258,7 +298,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 }
             }
 
-            if (targetRotation === '270_degrees') {
+            if (targetRotation === '270_degrees' && !upOrDown) {
                 branchOffset = {
                     x: branchOffset.z,
                     y: branchOffset.y,
@@ -278,32 +318,32 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 z: -1,
             }
 
-            if (sourceRotation === 'east') sourceOffset = {
+            if (sourceBlockFace === 'east') sourceOffset = {
                 x: 1,
                 y: 0,
                 z: 0,
             }
 
-            if (sourceRotation === 'south') sourceOffset = {
+            if (sourceBlockFace === 'south') sourceOffset = {
                 x: 0,
                 y: 0,
                 z: 1,
             }
 
-            if (sourceRotation === 'west') sourceOffset = {
+            if (sourceBlockFace === 'west') sourceOffset = {
                 x: -1,
                 y: 0,
                 z: 0,
             }
 
-            if (sourceRotation === "up") sourceOffset = {
+            if (sourceBlockFace === "up") sourceOffset = {
                 x: 0,
                 y: 1,
                 z: 0
             }
 
 
-            if (sourceRotation === "down") sourceOffset = {
+            if (sourceBlockFace === "down") sourceOffset = {
                 x: 0,
                 y: -1,
                 z: 0
@@ -447,8 +487,6 @@ world.afterEvents.entityLoad.subscribe(async event => {
         try {
             //const block = event.entity.dimension.getBlock(event.entity.location)
             const data = JSON.parse(property) as JigsawBlockData
-
-            //data.cardinalDirection = block.permutation.getState("minecraft:block_face") as string
 
             // This is a branch so its parent will tell it when to generate
             if (data.branch) return

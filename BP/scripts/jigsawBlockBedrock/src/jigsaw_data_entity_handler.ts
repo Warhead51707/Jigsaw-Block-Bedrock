@@ -40,8 +40,8 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         targetName: jigsawMacroData.targetName,
         turnsInto: jigsawMacroData.turnsInto,
         jointType: jigsawMacroData.jointType,
-        cardinalDirection: placeJigsaw.block.permutation.getState("minecraft:block_face") as string,
-        orientation: placeJigsaw.block.permutation.getState("jigsaw:orientation") as string,
+        cardinalDirection: placeJigsaw.block.permutation.getState("minecraft:cardinal_direction") as string,
+        blockFace: placeJigsaw.block.permutation.getState("minecraft:block_face") as string,
         keep: jigsawMacroData.keep,
         branch: false
     }

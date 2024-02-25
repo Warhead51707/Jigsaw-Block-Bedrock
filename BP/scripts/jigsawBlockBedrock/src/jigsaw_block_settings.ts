@@ -34,7 +34,10 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
     jigsawForm.textField("Target name:", "minecraft:empty", jigsawData.targetName)
     jigsawForm.textField("Turns into:", "minecraft:air", jigsawData.turnsInto)
 
-    jigsawForm.dropdown("Joint type:", ["rollable", "aligned"], jigsawData.jointType == "rollable" ? 1 : 0)
+    if (jigsawData.blockFace === "up" || jigsawData.blockFace === "down") {
+        jigsawForm.dropdown("Joint type:", ["rollable", "aligned"], jigsawData.jointType == "rollable" ? 0 : 1)
+    }
+
     jigsawForm.toggle("Keep? (DISABLE THIS TOGGLE FOR STRUCTURE SAVE, ENABLE ONCE STRUCTURE HAS BEEN SAVED)", jigsawData.keep)
 
     system.run(() => {
@@ -49,8 +52,17 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
             jigsawData.name = formData.formValues[1].toString()
             jigsawData.targetName = formData.formValues[2].toString()
             jigsawData.turnsInto = formData.formValues[3].toString()
-            jigsawData.jointType = formData.formValues[4].toString() as "rollable" | "aligned"
-            jigsawData.keep = formData.formValues[5] as boolean
+
+            if (jigsawData.blockFace === "up" || jigsawData.blockFace === "down") {
+
+                if (formData.formValues[4] === 0) jigsawData.jointType = "rollable"
+                else jigsawData.jointType = "aligned"
+
+                jigsawData.keep = formData.formValues[5] as boolean
+            } else {
+                jigsawData.keep = formData.formValues[4] as boolean
+            }
+
 
             dataEntity.setDynamicProperty("jigsawData", JSON.stringify(jigsawData, null, 4))
         })

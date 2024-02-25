@@ -20,7 +20,7 @@ export type JigsawBlockData = {
     keep: boolean,
 
     cardinalDirection: string,
-    orientation: string,
+    blockFace: string,
 
     branch: boolean,
 }

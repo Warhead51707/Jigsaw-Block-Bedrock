@@ -13,6 +13,10 @@ export function weightedRandom(weightedArray: any[]): any {
     return weights[Math.floor(Math.random() * weights.length)]
 }
 
+export function randomMinMax(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min) + min)
+}
+
 export function boundsIntersect(a: Bounds, b: Bounds) {
     const xAxisIntersect = (a.start.x < b.start.x + b.size.x) && (a.start.x + a.size.x > b.start.x) || a.start.x === b.start.x
     const yAxisIntersect = (a.start.y < b.start.y + b.size.y) && (a.start.y + a.size.y > b.start.y) || a.start.y === b.start.y
