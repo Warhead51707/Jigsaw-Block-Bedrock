@@ -51,25 +51,25 @@ world.afterEvents.worldInitialize.subscribe(event => {
             for (const bounds of boundingBoxes) {
                 try {
                     for (let x = 0; x <= bounds.size.x; x++) {
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x + x,
                             y: bounds.start.y,
                             z: bounds.start.z,
                         })
 
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x + x,
                             y: bounds.start.y,
                             z: bounds.start.z + bounds.size.z,
                         })
 
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x + x,
                             y: bounds.start.y + bounds.size.y,
                             z: bounds.start.z,
                         })
 
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x + x,
                             y: bounds.start.y + bounds.size.y,
                             z: bounds.start.z + bounds.size.z,
@@ -77,25 +77,25 @@ world.afterEvents.worldInitialize.subscribe(event => {
                     }
 
                     for (let z = 0; z <= bounds.size.z; z++) {
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x,
                             y: bounds.start.y,
                             z: bounds.start.z + z,
                         })
 
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x + bounds.size.x,
                             y: bounds.start.y,
                             z: bounds.start.z + z,
                         })
 
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x,
                             y: bounds.start.y + bounds.size.y,
                             z: bounds.start.z + z,
                         })
 
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x + bounds.size.x,
                             y: bounds.start.y + bounds.size.y,
                             z: bounds.start.z + z,
@@ -103,25 +103,25 @@ world.afterEvents.worldInitialize.subscribe(event => {
                     }
 
                     for (let y = 0; y <= bounds.size.y; y++) {
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x,
                             y: bounds.start.y + y,
                             z: bounds.start.z,
                         })
 
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x + bounds.size.x,
                             y: bounds.start.y + y,
                             z: bounds.start.z,
                         })
 
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x,
                             y: bounds.start.y + y,
                             z: bounds.start.z + bounds.size.z,
                         })
 
-                        player.dimension.spawnParticle('minecraft:sonic_explosion', {
+                        player.dimension.spawnParticle('jigsaw:border_dust', {
                             x: bounds.start.x + bounds.size.x,
                             y: bounds.start.y + y,
                             z: bounds.start.z + bounds.size.z,
@@ -197,7 +197,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
         const branches = await getBranches(chosenStructure.element.location, position, bounds, dimension)
         const possibleBranches = shuffle(branches.filter(branch => branch.data.name === data.targetName)) as StructureBranches
 
-        const sourceRotation = dimension.getBlock(position).permutation.getState('minecraft:cardinal_direction')
+        const sourceRotation = dimension.getBlock(position).permutation.getState('minecraft:block_face')
 
         const validPlacements: PlacementResult[] = []
 
@@ -231,6 +231,8 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 if (sourceRotation === 'west') targetRotation = '270_degrees'
                 if (sourceRotation === 'south') targetRotation = '180_degrees'
             }
+
+            if (branch.data.cardinalDirection === 'up' || branch.data.cardinalDirection === 'down') targetRotation = '0_degrees'
 
             let branchOffset = branch.offset
 
@@ -294,6 +296,19 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 z: 0,
             }
 
+            if (sourceRotation === "up") sourceOffset = {
+                x: 0,
+                y: 1,
+                z: 0
+            }
+
+
+            if (sourceRotation === "down") sourceOffset = {
+                x: 0,
+                y: -1,
+                z: 0
+            }
+
             const placementPosition = {
                 x: position.x + sourceOffset.x - branchOffset.x,
                 y: position.y + sourceOffset.y - branchOffset.y,
@@ -309,7 +324,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
             let canPlace = true
             for (const otherBounds of placedBounds) {
-                if (!boundsIntersect(placementBounds, otherBounds) && !boundsFit(placementBounds, otherBounds)) continue
+                if (!boundsIntersect(placementBounds, otherBounds) || boundsFit(placementBounds, otherBounds)) continue
 
                 canPlace = false
 
@@ -361,7 +376,7 @@ async function generate(source: Entity) {
         return
     }
 
-    const targetPool: TemplatePool = templatePools.find(pool => pool.id == data.targetPool)
+    let targetPool: TemplatePool = templatePools.find(pool => pool.id == data.targetPool)
 
     // target pool could not be found, probably user configuration error
     if (targetPool === undefined) {
@@ -376,15 +391,15 @@ async function generate(source: Entity) {
 
     // fallbacks
     while (placement == null) {
-        const fallbackPool: TemplatePool = templatePools.find(pool => pool.id == targetPool.fallback)
+        targetPool = templatePools.find(pool => pool.id == targetPool.fallback)
 
-        if (fallbackPool == undefined || fallbackPool.elements.length == 0 || fallbackPool.id == "minecraft:empty") {
+        if (targetPool == undefined || targetPool.elements.length == 0 || targetPool.id == "minecraft:empty") {
             block.setType(data.turnsInto)
 
             return
         }
 
-        placement = await getPlacement(position, dimension, data, fallbackPool)
+        placement = await getPlacement(position, dimension, data, targetPool)
     }
 
     block.setType(data.turnsInto)
@@ -430,7 +445,10 @@ world.afterEvents.entityLoad.subscribe(async event => {
         if (typeof property !== 'string') return
 
         try {
+            //const block = event.entity.dimension.getBlock(event.entity.location)
             const data = JSON.parse(property) as JigsawBlockData
+
+            //data.cardinalDirection = block.permutation.getState("minecraft:block_face") as string
 
             // This is a branch so its parent will tell it when to generate
             if (data.branch) return

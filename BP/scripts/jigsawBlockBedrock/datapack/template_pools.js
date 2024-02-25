@@ -1,7 +1,7 @@
 export const templatePools = [
     {
         id: "jigsaw:empty",
-        fallback: "jigsaw:empty",
+        fallback: "minecraft:empty",
         elements: [
             {
                 weight: 100,
@@ -126,7 +126,19 @@ export const templatePools = [
             {
                 weight: 50,
                 element: {
-                    location: "jigsaw:tests/streets/street_1_17_5_9"
+                    location: "jigsaw:tests/streets/street_2_17_5_9"
+                }
+            }
+        ]
+    },
+    {
+        id: "example:streets/decor",
+        fallback: "minecraft:empty",
+        elements: [
+            {
+                weight: 100,
+                element: {
+                    location: "jigsaw:tests/streets/street_side_3_4_3"
                 }
             }
         ]

@@ -13,14 +13,6 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         z: placeJigsaw.block.location.z + 0.5
     })
 
-    const facingDirectionMap = new Map()
-    facingDirectionMap.set("north_up", "north")
-    facingDirectionMap.set("east_up", "east")
-    facingDirectionMap.set("south_up", "south")
-    facingDirectionMap.set("west_up", "west")
-
-    placeJigsaw.block.setPermutation(placeJigsaw.block.permutation.withState('minecraft:cardinal_direction', facingDirectionMap.get(placeJigsaw.block.permutation.getState("jigsaw:orientation") as string)))
-
     let jigsawMacroData: JigsawMacroData = {
         macroEnabled: true,
         macroOwner: placeJigsaw.player.name,
@@ -48,7 +40,7 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         targetName: jigsawMacroData.targetName,
         turnsInto: jigsawMacroData.turnsInto,
         jointType: jigsawMacroData.jointType,
-        cardinalDirection: placeJigsaw.block.permutation.getState("minecraft:cardinal_direction") as string,
+        cardinalDirection: placeJigsaw.block.permutation.getState("minecraft:block_face") as string,
         orientation: placeJigsaw.block.permutation.getState("jigsaw:orientation") as string,
         keep: jigsawMacroData.keep,
         branch: false

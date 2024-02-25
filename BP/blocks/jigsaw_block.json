@@ -23,10 +23,15 @@
             "traits": {
                 "minecraft:placement_direction": {
                     "enabled_states": [
-                        "minecraft:cardinal_direction",
+                        "minecraft:block_face",
                         "minecraft:facing_direction"
                     ],
                     "y_rotation_offset": 180
+                },
+                "minecraft:placement_position": {
+                    "enabled_states": [
+                        "minecraft:block_face"
+                    ]
                 }
             }
         },
