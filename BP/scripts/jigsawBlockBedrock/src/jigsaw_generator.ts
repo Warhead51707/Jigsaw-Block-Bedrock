@@ -16,7 +16,22 @@ function parseSize(name: string): Vector3 {
 
 function getPlacedBounds(): Bounds[] {
     try {
-        return JSON.parse(world.getDynamicProperty('jigsaw:placed_bounds') as string)
+        let placedBoundsLength = 0
+
+        while (true) {
+            if (world.getDynamicProperty(`jigsaw:placed_bounds_${placedBoundsLength + 1}`) == undefined) break
+
+            placedBoundsLength++
+        }
+
+        let allBounds: Bounds[] = []
+
+        for (let i = 0; i <= placedBoundsLength; i++) {
+            allBounds = allBounds.concat(JSON.parse(world.getDynamicProperty(`jigsaw:placed_bounds_${i}`) as string))
+        }
+
+
+        return allBounds
     } catch { }
 
     return []
@@ -26,7 +41,24 @@ function addPlacedBounds(bounds: Bounds) {
     const placedBounds = getPlacedBounds()
     placedBounds.push(bounds)
 
-    world.setDynamicProperty('jigsaw:placed_bounds', JSON.stringify(placedBounds))
+    let placedBoundsLength = 0
+
+    while (true) {
+        if (world.getDynamicProperty(`jigsaw:placed_bounds_${placedBoundsLength + 1}`) == undefined) break
+
+        placedBoundsLength++
+    }
+
+    try {
+        world.setDynamicProperty(`jigsaw:placed_bounds_${placedBoundsLength}`, JSON.stringify(placedBounds))
+    } catch {
+        const newPlacedBounds: Bounds[] = []
+
+        newPlacedBounds.push(bounds)
+
+        world.setDynamicProperty(`jigsaw:placed_bounds_${placedBoundsLength + 1}`, JSON.stringify(newPlacedBounds, null, 4))
+    }
+
 }
 
 world.beforeEvents.chatSend.subscribe(event => {
@@ -38,6 +70,27 @@ world.beforeEvents.chatSend.subscribe(event => {
         event.cancel = true
 
         world.sendMessage('Reset structure bounds!')
+    }
+
+    if (event.message === "!debug structure_bound_count") {
+        event.cancel = true
+
+        for (let i = 0; i < 100; i++) {
+            addPlacedBounds({
+                size: {
+                    x: 0,
+                    y: 0,
+                    z: 0
+                },
+                start: {
+                    x: 0,
+                    y: 0,
+                    z: 0
+                }
+            })
+        }
+
+        world.sendMessage(`Structure bound count: ${getPlacedBounds().toString().length}`)
     }
 })
 
@@ -276,7 +329,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
             let branchOffset = branch.offset
 
-            if (targetRotation === '90_degrees' && !upOrDown) {
+            if (targetRotation === '90_degrees') {
                 branchOffset = {
                     x: bounds.size.z - branchOffset.z - 1,
                     y: branchOffset.y,
@@ -290,7 +343,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 }
             }
 
-            if (targetRotation === '180_degrees' && !upOrDown) {
+            if (targetRotation === '180_degrees') {
                 branchOffset = {
                     x: bounds.size.x - branchOffset.x - 1,
                     y: branchOffset.y,
@@ -298,7 +351,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 }
             }
 
-            if (targetRotation === '270_degrees' && !upOrDown) {
+            if (targetRotation === '270_degrees') {
                 branchOffset = {
                     x: branchOffset.z,
                     y: branchOffset.y,
