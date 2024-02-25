@@ -65,6 +65,9 @@ readline.question("Please enter the path to your project's behavior pack: ", use
             // Res pack
             copyFolderPasteToTarget("./RP/ui", `${user.resPath}/ui`)
             copyFolderPasteToTarget("./RP/textures/blocks", `${user.resPath}/textures/blocks`)
+            copyFolderPasteToTarget("./RP/models", `${user.resPath}/models`)
+            copyFolderPasteToTarget("./RP/particles", `${user.resPath}/particles`)
+            
 
             if (!fs.existsSync(`${user.behPath}/manifest.json`)) {
                 console.log("Error: No behavior manifest file found at: " + `${user.behPath}/manifest.json`)
