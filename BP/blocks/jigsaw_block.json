@@ -3,30 +3,11 @@
     "minecraft:block": {
         "description": {
             "identifier": "jigsaw:jigsaw_block",
-            "states": {
-                "jigsaw:orientation": [
-                    "icon_setup", // Used for the icon
-                    "north_up",
-                    "south_up",
-                    "west_up",
-                    "east_up", // Horizontal
-                    "up_north",
-                    "up_south",
-                    "up_west",
-                    "up_east", // Vertical - Top Face
-                    "down_north",
-                    "down_south",
-                    "down_west",
-                    "down_east" // Vertical - Bottom Face
-                ]
-            },
             "traits": {
                 "minecraft:placement_direction": {
                     "enabled_states": [
-                        "minecraft:block_face",
-                        "minecraft:facing_direction"
-                    ],
-                    "y_rotation_offset": 180
+                        "minecraft:cardinal_direction"
+                    ]
                 },
                 "minecraft:placement_position": {
                     "enabled_states": [
@@ -44,10 +25,6 @@
                     "texture": "jigsaw"
                 }
             },
-            "minecraft:on_player_placing": {
-                "event": "jigsaw:set_orientation",
-                "target": "self"
-            },
             "minecraft:on_interact": {
                 "event": "jigsaw:empty",
                 "target": "self",
@@ -56,79 +33,47 @@
         },
         "permutations": [
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'icon_setup'",
+                "condition": "q.block_state('minecraft:block_face') == 'north'",
                 "components": {
                     "minecraft:transformation": {
-                        "rotation": [
-                            0,
-                            180,
-                            0
-                        ]
+                        "rotation": [0, 0, 0]
                     }
                 }
             },
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'north_up'",
+                "condition": "q.block_state('minecraft:block_face') == 'south'",
                 "components": {
                     "minecraft:transformation": {
-                        "rotation": [
-                            0,
-                            0,
-                            0
-                        ]
+                        "rotation": [0, 180, 0]
                     }
                 }
             },
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'south_up'",
+                "condition": "q.block_state('minecraft:block_face') == 'west'",
                 "components": {
                     "minecraft:transformation": {
-                        "rotation": [
-                            0,
-                            180,
-                            0
-                        ]
+                        "rotation": [0, 90, 0]
                     }
                 }
             },
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'west_up'",
+                "condition": "q.block_state('minecraft:block_face') == 'east'",
                 "components": {
                     "minecraft:transformation": {
-                        "rotation": [
-                            0,
-                            90,
-                            0
-                        ]
+                        "rotation": [0, 270, 0]
                     }
                 }
             },
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'east_up'",
+                "condition": "q.block_state('minecraft:block_face') == 'up' && q.block_state('minecraft:cardinal_direction') == 'north'",
                 "components": {
                     "minecraft:transformation": {
-                        "rotation": [
-                            0,
-                            -90,
-                            0
-                        ]
+                        "rotation": [90, 0, 0]
                     }
                 }
             },
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'up_north'",
-                "components": {
-                    "minecraft:transformation": {
-                        "rotation": [
-                            90,
-                            0,
-                            0
-                        ]
-                    }
-                }
-            },
-            {
-                "condition": "q.block_state('jigsaw:orientation') == 'up_south'",
+                "condition": "q.block_state('minecraft:block_face') == 'up' && q.block_state('minecraft:cardinal_direction') == 'south'",
                 "components": {
                     "minecraft:transformation": {
                         "rotation": [
@@ -140,7 +85,7 @@
                 }
             },
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'up_west'",
+                "condition": "q.block_state('minecraft:block_face') == 'up' && q.block_state('minecraft:cardinal_direction') == 'west'",
                 "components": {
                     "minecraft:transformation": {
                         "rotation": [
@@ -152,7 +97,7 @@
                 }
             },
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'up_east'",
+                "condition": "q.block_state('minecraft:block_face') == 'up' && q.block_state('minecraft:cardinal_direction') == 'east'",
                 "components": {
                     "minecraft:transformation": {
                         "rotation": [
@@ -164,7 +109,7 @@
                 }
             },
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'down_north'",
+                "condition": "q.block_state('minecraft:block_face') == 'down' && q.block_state('minecraft:cardinal_direction') == 'north'",
                 "components": {
                     "minecraft:transformation": {
                         "rotation": [
@@ -176,7 +121,7 @@
                 }
             },
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'down_south'",
+                "condition": "q.block_state('minecraft:block_face') == 'down' && q.block_state('minecraft:cardinal_direction') == 'south'",
                 "components": {
                     "minecraft:transformation": {
                         "rotation": [
@@ -188,7 +133,7 @@
                 }
             },
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'down_west'",
+                "condition": "q.block_state('minecraft:block_face') == 'down' && q.block_state('minecraft:cardinal_direction') == 'west'",
                 "components": {
                     "minecraft:transformation": {
                         "rotation": [
@@ -200,7 +145,7 @@
                 }
             },
             {
-                "condition": "q.block_state('jigsaw:orientation') == 'down_east'",
+                "condition": "q.block_state('minecraft:block_face') == 'down' && q.block_state('minecraft:cardinal_direction') == 'east'",
                 "components": {
                     "minecraft:transformation": {
                         "rotation": [
@@ -215,82 +160,6 @@
         "events": {
             "jigsaw:empty": {
                 "swing": {}
-            },
-            "jigsaw:set_orientation": {
-                "sequence": [
-                    {
-                        "condition": "query.block_face == 1 && query.cardinal_facing_2d == 2",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'up_north'"
-                        }
-                    },
-                    {
-                        "condition": "query.block_face == 1 && query.cardinal_facing_2d == 3",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'up_south'"
-                        }
-                    },
-                    {
-                        "condition": "query.block_face == 1 && query.cardinal_facing_2d == 4",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'up_west'"
-                        }
-                    },
-                    {
-                        "condition": "query.block_face == 1 && query.cardinal_facing_2d == 5",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'up_east'"
-                        }
-                    },
-                    {
-                        "condition": "query.block_face == 0 && query.cardinal_facing_2d == 2",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'down_north'"
-                        }
-                    },
-                    {
-                        "condition": "query.block_face == 0 && query.cardinal_facing_2d == 3",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'down_south'"
-                        }
-                    },
-                    {
-                        "condition": "query.block_face == 0 && query.cardinal_facing_2d == 4",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'down_west'"
-                        }
-                    },
-                    {
-                        "condition": "query.block_face == 0 && query.cardinal_facing_2d == 5",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'down_east'"
-                        }
-                    },
-                    {
-                        "condition": "query.block_face == 2",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'north_up'"
-                        }
-                    },
-                    {
-                        "condition": "query.block_face == 3",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'south_up'"
-                        }
-                    },
-                    {
-                        "condition": "query.block_face == 4",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'west_up'"
-                        }
-                    },
-                    {
-                        "condition": "query.block_face == 5",
-                        "set_block_state": {
-                            "jigsaw:orientation": "'east_up'"
-                        }
-                    }
-                ]
             }
         }
     }
