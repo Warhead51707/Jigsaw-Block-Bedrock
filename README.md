@@ -24,7 +24,6 @@ Currently, the library is packed with,
 - Automatic structure collision detection
 - Built with map makers in mind, easy to use macro/"pick block" system
 - Compatible with any Add-On
-- No experimental gameplay toggles required
 - Preview support
 - Simple Jigsaw UI
 - Multiple test structures & examples
