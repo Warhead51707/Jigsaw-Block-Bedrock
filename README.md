@@ -24,8 +24,8 @@ Currently, the library is packed with,
 - Automatic structure collision detection
 - Built with map makers in mind, easy to use macro/"pick block" system
 - Compatible with any Add-On
-- Preview support
-- Simple Jigsaw UI
+- Preview support (coming soon)
+- Simple Jigsaw UI 
 - Multiple test structures & examples
 - Node JS automatic install script
 
