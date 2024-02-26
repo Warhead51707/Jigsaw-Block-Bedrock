@@ -539,14 +539,21 @@ world.afterEvents.entityLoad.subscribe(async event => {
         if (typeof property !== 'string') return
 
         try {
-            //const block = event.entity.dimension.getBlock(event.entity.location)
+            const block = event.entity.dimension.getBlock(event.entity.location)
             const data = JSON.parse(property) as JigsawBlockData
 
             // This is a branch so its parent will tell it when to generate
             if (data.branch) return
 
-            // This is to stop any logic from running for the jigsaw blocks placed in the template structures
+            // old data 
             if (data.keep) return
+
+            // was this jigsaw player placed
+            const playerPlacedJigsaws: any[] = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
+
+            for (const playerPlaced of playerPlacedJigsaws) {
+                if (playerPlaced.x == block.location.x && playerPlaced.y == block.location.y && playerPlaced.z == block.location.z) return
+            }
 
             generate(event.entity)
         } catch { }

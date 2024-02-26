@@ -5,13 +5,13 @@ import { JigsawBlockData, JigsawMacroData } from './types'
 export function getMacroData(): JigsawMacroData[] {
     try {
         return JSON.parse(world.getDynamicProperty('jigsaw:macro_data') as string)
-    } catch (err) { }
-
-    return []
+    } catch (err) {
+        return undefined
+    }
 }
 
 function setMacroData(data: JigsawMacroData[]): void {
-    world.setDynamicProperty("jigsaw:macro_data", JSON.stringify(data))
+    world.setDynamicProperty("jigsaw:macro_data", JSON.stringify(data, null, 4))
 }
 
 world.beforeEvents.chatSend.subscribe(chatMsg => {
@@ -38,6 +38,10 @@ world.beforeEvents.chatSend.subscribe(chatMsg => {
 
         if (sourceJigsaw.typeId !== "jigsaw:jigsaw_block") return
 
+        if (getMacroData() == undefined) {
+            setMacroData([])
+        }
+
         const sourceJigsawEntityData: JigsawBlockData = JSON.parse(((chatMsg.sender.dimension.getEntitiesAtBlockLocation(sourceJigsaw.location)[0] as Entity).getDynamicProperty("jigsawData") as string))
 
         const jigsawMacroData: JigsawMacroData = {
@@ -47,27 +51,26 @@ world.beforeEvents.chatSend.subscribe(chatMsg => {
             targetName: sourceJigsawEntityData.targetName,
             targetPool: sourceJigsawEntityData.targetPool,
             jointType: sourceJigsawEntityData.jointType,
-            turnsInto: sourceJigsawEntityData.turnsInto,
-            keep: false
+            turnsInto: sourceJigsawEntityData.turnsInto
         }
 
-        let replacedExisting = false
+        // world.sendMessage(JSON.stringify(jigsawMacroData, null, 4))
 
         for (const macro of macroData) {
-            if (macro.macroOwner === chatMsg.sender.name) {
-                macroData[macroData.indexOf(macro)] = jigsawMacroData
+            if (macro.macroOwner == chatMsg.sender.name) {
+                const index = macroData.indexOf(macro)
 
-                replacedExisting = true
+                macroData.splice(index, 1)
 
                 break
             }
         }
 
-        if (!replacedExisting) macroData.push(jigsawMacroData)
+        macroData.push(jigsawMacroData)
 
         chatMsg.sender.sendMessage("Jigsaw macro created.")
 
-        setMacroData(macroData)
+        world.setDynamicProperty("jigsaw:macro_data", JSON.stringify(macroData, null, 4))
 
         return
     }

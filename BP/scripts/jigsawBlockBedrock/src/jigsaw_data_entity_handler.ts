@@ -3,7 +3,19 @@ import { JigsawBlockData, JigsawMacroData } from "./types"
 import { getMacroData } from "./jigsaw_macro"
 
 world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
-    if (placeJigsaw.block.typeId != "jigsaw:jigsaw_block") return;
+    if (placeJigsaw.block.typeId != "jigsaw:jigsaw_block") return
+
+    let playerPlacedJigsaws: any[] = world.getDynamicProperty("jigsaw:player_placed") as any
+
+    if (playerPlacedJigsaws == undefined) {
+        world.setDynamicProperty("jigsaw:player_placed", JSON.stringify([], null, 4))
+
+        playerPlacedJigsaws = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
+    } else playerPlacedJigsaws = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
+
+    playerPlacedJigsaws.push(placeJigsaw.block.location)
+
+    world.setDynamicProperty("jigsaw:player_placed", JSON.stringify(playerPlacedJigsaws, null, 4))
 
     const dimension: Dimension = placeJigsaw.dimension
 
@@ -20,17 +32,17 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         name: "minecraft:empty",
         targetName: "minecraft:empty",
         turnsInto: "minecraft:air",
-        jointType: "rollable",
-        keep: true
+        jointType: "rollable"
     }
 
-    const macroData: JigsawMacroData[] = getMacroData()
+    const macroData: JigsawMacroData[] = JSON.parse(world.getDynamicProperty("jigsaw:macro_data") as string)
 
     if (macroData.length != 0) {
         for (const macro of macroData) {
-            if (macro.macroOwner == placeJigsaw.player.name && macro.macroEnabled) jigsawMacroData = macro
-
-            break
+            if (macro.macroOwner == placeJigsaw.player.name && macro.macroEnabled) {
+                jigsawMacroData = macro
+                break
+            }
         }
     } else macroData.push(jigsawMacroData)
 
@@ -42,7 +54,6 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         jointType: jigsawMacroData.jointType,
         cardinalDirection: placeJigsaw.block.permutation.getState("minecraft:cardinal_direction") as string,
         blockFace: placeJigsaw.block.permutation.getState("minecraft:block_face") as string,
-        keep: jigsawMacroData.keep,
         branch: false
     }
 

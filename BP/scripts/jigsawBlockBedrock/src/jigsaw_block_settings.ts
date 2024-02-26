@@ -38,8 +38,6 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
         jigsawForm.dropdown("Joint type:", ["rollable", "aligned"], jigsawData.jointType == "rollable" ? 0 : 1)
     }
 
-    jigsawForm.toggle("Keep? (DISABLE THIS TOGGLE FOR STRUCTURE SAVE, ENABLE ONCE STRUCTURE HAS BEEN SAVED)", jigsawData.keep)
-
     system.run(() => {
         jigsawForm.show(jigsawInteract.player).then(formData => {
             let index = hasOpened.indexOf(playerOpenData)
@@ -54,13 +52,8 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
             jigsawData.turnsInto = formData.formValues[3].toString()
 
             if (jigsawData.blockFace === "up" || jigsawData.blockFace === "down") {
-
                 if (formData.formValues[4] === 0) jigsawData.jointType = "rollable"
                 else jigsawData.jointType = "aligned"
-
-                jigsawData.keep = formData.formValues[5] as boolean
-            } else {
-                jigsawData.keep = formData.formValues[4] as boolean
             }
 
 

@@ -7,8 +7,7 @@ export type JigsawMacroData = {
     name: string,
     targetName: string,
     turnsInto: string,
-    jointType: "rollable" | "aligned",
-    keep: boolean
+    jointType: "rollable" | "aligned"
 }
 
 export type JigsawBlockData = {
@@ -17,7 +16,7 @@ export type JigsawBlockData = {
     targetName: string,
     turnsInto: string,
     jointType: "rollable" | "aligned",
-    keep: boolean,
+    keep?: boolean,
 
     cardinalDirection: string,
     blockFace: string,
