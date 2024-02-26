@@ -26,7 +26,7 @@ function getPlacedBounds(): Bounds[] {
 
         let allBounds: Bounds[] = []
 
-        for (let i = 0; i <= placedBoundsLength; i++) {
+        for (let i = 0; i < placedBoundsLength || i == 0; i++) {
             allBounds = allBounds.concat(JSON.parse(world.getDynamicProperty(`jigsaw:placed_bounds_${i}`) as string))
         }
 
@@ -75,7 +75,7 @@ world.beforeEvents.chatSend.subscribe(event => {
     if (event.message === "!debug structure_bound_count") {
         event.cancel = true
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 200; i++) {
             addPlacedBounds({
                 size: {
                     x: 0,
@@ -89,6 +89,7 @@ world.beforeEvents.chatSend.subscribe(event => {
                 }
             })
         }
+
 
         world.sendMessage(`Structure bound count: ${getPlacedBounds().toString().length}`)
     }
