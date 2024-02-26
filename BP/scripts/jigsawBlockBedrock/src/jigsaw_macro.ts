@@ -1,12 +1,12 @@
 import { world, Dimension, Entity, Block, Vector3, system } from '@minecraft/server'
 import { JigsawBlockData, JigsawMacroData } from './types'
 
-
 export function getMacroData(): JigsawMacroData[] {
     try {
         return JSON.parse(world.getDynamicProperty('jigsaw:macro_data') as string)
     } catch (err) {
-        return undefined
+        world.setDynamicProperty("jigsaw:macro_data", JSON.stringify("[]", null, 4))
+        return JSON.parse(world.getDynamicProperty('jigsaw:macro_data') as string)
     }
 }
 
@@ -37,10 +37,6 @@ world.beforeEvents.chatSend.subscribe(chatMsg => {
         const sourceJigsaw: Block = chatMsg.sender.getBlockFromViewDirection().block
 
         if (sourceJigsaw.typeId !== "jigsaw:jigsaw_block") return
-
-        if (getMacroData() == undefined) {
-            setMacroData([])
-        }
 
         const sourceJigsawEntityData: JigsawBlockData = JSON.parse(((chatMsg.sender.dimension.getEntitiesAtBlockLocation(sourceJigsaw.location)[0] as Entity).getDynamicProperty("jigsawData") as string))
 
