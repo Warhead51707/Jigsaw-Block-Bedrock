@@ -31,7 +31,7 @@ world.beforeEvents.chatSend.subscribe(chatMsg => {
         return
     }
 
-    const macroData: JigsawMacroData[] = getMacroData()
+    let macroData: JigsawMacroData[] = getMacroData()
 
     if (subcommand == "create") {
         const sourceJigsaw: Block = chatMsg.sender.getBlockFromViewDirection().block
@@ -39,6 +39,10 @@ world.beforeEvents.chatSend.subscribe(chatMsg => {
         if (sourceJigsaw.typeId !== "jigsaw:jigsaw_block") {
             chatMsg.sender.sendMessage("Failed to create macro. Please look at a valid jigsaw block and run the command again.")
             return
+        }
+
+        if (getMacroData() == undefined) {
+            setMacroData([])
         }
 
         const sourceJigsawEntityData: JigsawBlockData = JSON.parse(((chatMsg.sender.dimension.getEntitiesAtBlockLocation(sourceJigsaw.location)[0] as Entity).getDynamicProperty("jigsawData") as string))
@@ -65,7 +69,13 @@ world.beforeEvents.chatSend.subscribe(chatMsg => {
             }
         }
 
-        macroData.push(jigsawMacroData)
+        try {
+            macroData.push(jigsawMacroData)
+        } catch {
+            macroData = []
+            macroData.push(jigsawMacroData)
+        }
+
 
         chatMsg.sender.sendMessage("Jigsaw macro created.")
 

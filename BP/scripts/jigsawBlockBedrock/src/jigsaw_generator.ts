@@ -551,9 +551,6 @@ world.afterEvents.entityLoad.subscribe(async event => {
             // This is a branch so its parent will tell it when to generate
             if (data.branch) return
 
-            // old data 
-            if (data.keep) return
-
             // was this jigsaw player placed
             const playerPlacedJigsaws: any[] = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
 
