@@ -20,8 +20,8 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
     const dimension: Dimension = jigsawInteract.player.dimension
     const dataEntity: Entity = dimension.getEntitiesAtBlockLocation(jigsawInteract.block.location)[0]
 
-    if (dataEntity == undefined) {
-        world.sendMessage("Warning: Matching data entity not found. Try destroying and placing the jigsaw again.")
+    if (dataEntity == undefined || dataEntity.typeId !== "jigsaw:jigsaw_data") {
+        console.warn("§dJigsaw Block Bedrock§r (§4Error§r): Matching data entity not found. Try destroying and placing the jigsaw again.")
         return
     }
 
@@ -44,7 +44,7 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
 
             hasOpened.slice(index, 1)
 
-            if (formData.canceled) return;
+            if (formData.canceled) return
 
             jigsawData.targetPool = formData.formValues[0].toString()
             jigsawData.name = formData.formValues[1].toString()

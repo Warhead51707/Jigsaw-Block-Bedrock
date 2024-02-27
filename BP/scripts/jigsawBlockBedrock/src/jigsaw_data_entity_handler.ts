@@ -1,11 +1,12 @@
-import { world, system, Dimension, Entity } from "@minecraft/server"
+import { world, system, Dimension, Entity, Vector3 } from "@minecraft/server"
 import { JigsawBlockData, JigsawMacroData } from "./types"
 import { getMacroData } from "./jigsaw_macro"
 
 world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
     if (placeJigsaw.block.typeId != "jigsaw:jigsaw_block") return
 
-    let playerPlacedJigsaws: any[] = world.getDynamicProperty("jigsaw:player_placed") as any
+    // player placed flag
+    let playerPlacedJigsaws: Vector3[] = world.getDynamicProperty("jigsaw:player_placed") as any
 
     if (playerPlacedJigsaws == undefined) {
         world.setDynamicProperty("jigsaw:player_placed", JSON.stringify([], null, 4))
@@ -16,6 +17,7 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
     playerPlacedJigsaws.push(placeJigsaw.block.location)
 
     world.setDynamicProperty("jigsaw:player_placed", JSON.stringify(playerPlacedJigsaws, null, 4))
+    ///
 
     const dimension: Dimension = placeJigsaw.dimension
 
@@ -61,7 +63,15 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
 })
 
 world.beforeEvents.playerBreakBlock.subscribe(breakJigsaw => {
-    if (breakJigsaw.block.typeId != "jigsaw:jigsaw_block") return;
+    if (breakJigsaw.block.typeId != "jigsaw:jigsaw_block") return
+
+    const playerPlacedJigsaws: Vector3[] = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
+
+    try {
+        playerPlacedJigsaws.splice(playerPlacedJigsaws.indexOf(breakJigsaw.block.location), 1)
+    } catch {
+        console.warn("§dJigsaw Block Bedrock§r (§4Error§r): Failed to remove player placed jigsaw data")
+    }
 
     const dimension: Dimension = breakJigsaw.dimension
 

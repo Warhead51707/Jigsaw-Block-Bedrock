@@ -4,6 +4,8 @@ import { templatePools } from '../datapack/template_pools'
 import { weightedRandom, boundsIntersect, boundsFit, randomMinMax } from './jigsaw_math'
 import { placeStructureAndGetEntities } from './smart_queue'
 
+// util functions
+
 function parseSize(name: string): Vector3 {
     const elements = name.split('_')
 
@@ -32,7 +34,9 @@ function getPlacedBounds(): Bounds[] {
 
 
         return allBounds
-    } catch { }
+    } catch {
+        console.warn("§dJigsaw Block Bedrock§r (§4Error§r): Failed to get placed bounds world data")
+    }
 
     return []
 }
@@ -60,6 +64,8 @@ function addPlacedBounds(bounds: Bounds) {
     }
 
 }
+
+///
 
 world.beforeEvents.chatSend.subscribe(event => {
     if (!event.sender.isOp) return
@@ -474,7 +480,7 @@ async function generate(source: Entity) {
 
     // target pool could not be found, probably user configuration error
     if (targetPool === undefined) {
-        world.sendMessage(`Warning - Bad target pool: '${data.targetPool}'`)
+        console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Jigsaw at (${block.location.x}, ${block.location.y}, ${block.location.z}) contains bad target pool '${data.targetPool}`)
 
         return
     }

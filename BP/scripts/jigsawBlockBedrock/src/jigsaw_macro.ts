@@ -36,7 +36,10 @@ world.beforeEvents.chatSend.subscribe(chatMsg => {
     if (subcommand == "create") {
         const sourceJigsaw: Block = chatMsg.sender.getBlockFromViewDirection().block
 
-        if (sourceJigsaw.typeId !== "jigsaw:jigsaw_block") return
+        if (sourceJigsaw.typeId !== "jigsaw:jigsaw_block") {
+            chatMsg.sender.sendMessage("Failed to create macro. Please look at a valid jigsaw block and run the command again.")
+            return
+        }
 
         const sourceJigsawEntityData: JigsawBlockData = JSON.parse(((chatMsg.sender.dimension.getEntitiesAtBlockLocation(sourceJigsaw.location)[0] as Entity).getDynamicProperty("jigsawData") as string))
 
