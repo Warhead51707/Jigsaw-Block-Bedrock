@@ -9,7 +9,7 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
     let playerPlacedJigsaws: Vector3[] = world.getDynamicProperty("jigsaw:player_placed") as any
 
     if (playerPlacedJigsaws == undefined) {
-        world.setDynamicProperty("jigsaw:player_placed", JSON.stringify([], null, 4))
+        world.setDynamicProperty("jigsaw:player_placed", JSON.stringify("[]", null, 4))
 
         playerPlacedJigsaws = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
     } else playerPlacedJigsaws = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
