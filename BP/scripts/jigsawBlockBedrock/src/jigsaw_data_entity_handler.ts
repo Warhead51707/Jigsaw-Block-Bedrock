@@ -8,15 +8,15 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
     // player placed flag
     let playerPlacedJigsaws: Vector3[] = world.getDynamicProperty("jigsaw:player_placed") as any
 
-    if (playerPlacedJigsaws == undefined) {
-        world.setDynamicProperty("jigsaw:player_placed", JSON.stringify("[]", null, 4))
+    if (!Array.isArray(playerPlacedJigsaws)) {
+        world.setDynamicProperty("jigsaw:player_placed", "[]")
+    }
 
-        playerPlacedJigsaws = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
-    } else playerPlacedJigsaws = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
+    playerPlacedJigsaws = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
 
     playerPlacedJigsaws.push(placeJigsaw.block.location)
 
-    world.setDynamicProperty("jigsaw:player_placed", JSON.stringify(playerPlacedJigsaws, null, 4))
+    world.setDynamicProperty("jigsaw:player_placed", JSON.stringify(playerPlacedJigsaws))
     ///
 
     const dimension: Dimension = placeJigsaw.dimension

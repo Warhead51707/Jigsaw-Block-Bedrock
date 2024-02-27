@@ -17,28 +17,21 @@ function parseSize(name: string): Vector3 {
 }
 
 function getPlacedBounds(): Bounds[] {
-    try {
-        let placedBoundsLength = 0
+    let placedBoundsLength = 0
 
-        while (true) {
-            if (world.getDynamicProperty(`jigsaw:placed_bounds_${placedBoundsLength + 1}`) == undefined) break
+    while (true) {
+        if (world.getDynamicProperty(`jigsaw:placed_bounds_${placedBoundsLength}`) == undefined) break
 
-            placedBoundsLength++
-        }
-
-        let allBounds: Bounds[] = []
-
-        for (let i = 0; i < placedBoundsLength || i == 0; i++) {
-            allBounds = allBounds.concat(JSON.parse(world.getDynamicProperty(`jigsaw:placed_bounds_${i}`) as string))
-        }
-
-
-        return allBounds
-    } catch {
-        console.warn("§dJigsaw Block Bedrock§r (§4Error§r): Failed to get placed bounds world data")
+        placedBoundsLength++
     }
 
-    return []
+    let allBounds: Bounds[] = []
+
+    for (let i = 0; i < placedBoundsLength; i++) {
+        allBounds = allBounds.concat(JSON.parse(world.getDynamicProperty(`jigsaw:placed_bounds_${i}`) as string))
+    }
+
+    return allBounds
 }
 
 function addPlacedBounds(bounds: Bounds) {
@@ -70,35 +63,7 @@ function addPlacedBounds(bounds: Bounds) {
 world.beforeEvents.chatSend.subscribe(event => {
     if (!event.sender.isOp) return
 
-    if (event.message === '!debug reset_structure_bounds') {
-        world.setDynamicProperty('jigsaw:placed_bounds', '[]')
-
-        event.cancel = true
-
-        world.sendMessage('Reset structure bounds!')
-    }
-
-    if (event.message === "!debug structure_bound_count") {
-        event.cancel = true
-
-        for (let i = 0; i < 200; i++) {
-            addPlacedBounds({
-                size: {
-                    x: 0,
-                    y: 0,
-                    z: 0
-                },
-                start: {
-                    x: 0,
-                    y: 0,
-                    z: 0
-                }
-            })
-        }
-
-
-        world.sendMessage(`Structure bound count: ${getPlacedBounds().toString().length}`)
-    }
+    // Add debug commands here
 })
 
 world.afterEvents.worldInitialize.subscribe(event => {
