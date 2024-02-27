@@ -37,7 +37,7 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         jointType: "rollable"
     }
 
-    const macroData: JigsawMacroData[] = JSON.parse(world.getDynamicProperty("jigsaw:macro_data") as string)
+    const macroData: JigsawMacroData[] = getMacroData()
 
     if (macroData.length != 0) {
         for (const macro of macroData) {
