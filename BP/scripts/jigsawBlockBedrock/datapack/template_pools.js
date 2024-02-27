@@ -52,49 +52,49 @@ export const templatePools = [
         fallback: "jigsaw:empty",
         elements: [
             {
-                weight: 0,
+                weight: 30,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/hall/hallway_5_5_15"
                 }
             },
             {
-                weight: 50,
+                weight: 10,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/main/mainroom_13_6_22"
                 }
             },
             {
-                weight: 0,
+                weight: 8,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/passthroughs/jailhouse_17_5_18"
                 }
             },
             {
-                weight: 0,
+                weight: 11,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/passthroughs/pit_11_12_20"
                 }
             },
             {
-                weight: 0,
+                weight: 18,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/treasure/crafting_9_5_10"
                 }
             },
             {
-                weight: 5,
+                weight: 14,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/treasure/library_9_5_13"
                 }
             },
             {
-                weight: 8,
+                weight: 4,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/treasure/oldcake_9_5_9"
                 }
             },
             {
-                weight: 5,
+                weight: 15,
                 element: {
                     location: "jigsaw:tests/stronghold/rooms/treasure/orestorage_9_5_10"
                 }
