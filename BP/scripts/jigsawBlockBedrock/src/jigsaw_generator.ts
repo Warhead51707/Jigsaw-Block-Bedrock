@@ -507,8 +507,6 @@ async function generate(source: Entity) {
         if (targetPool == undefined || targetPool.elements.length == 0 || targetPool.id == "minecraft:empty") {
             block.setType(data.turnsInto)
 
-            world.sendMessage('Failed to place!')
-
             return
         }
 
@@ -572,8 +570,6 @@ world.afterEvents.entityLoad.subscribe(async event => {
             for (const playerPlaced of playerPlacedJigsaws) {
                 if (playerPlaced.x == block.location.x && playerPlaced.y == block.location.y && playerPlaced.z == block.location.z) return
             }
-
-            world.sendMessage('Generating main!')
 
             generate(event.entity)
         } catch { }
