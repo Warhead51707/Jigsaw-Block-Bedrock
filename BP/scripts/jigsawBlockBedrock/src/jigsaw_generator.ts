@@ -2,7 +2,7 @@ import { world, Dimension, Entity, Block, Vector3, system } from '@minecraft/ser
 import { JigsawBlockData, TemplatePool, TemplatePoolElement, PlacementResult, Bounds, StructureBranches } from './types'
 import { templatePools } from '../datapack/template_pools'
 import { weightedRandom, boundsIntersect, boundsFit, randomMinMax } from './jigsaw_math'
-import { placeStructureAndGetEntities } from './smart_queue'
+import { placeStructureAndGetEntities, lockBoundsMutex, unlockBoundsMutex, MutexRequest } from './smart_queue'
 
 // util functions
 
@@ -64,14 +64,29 @@ world.beforeEvents.chatSend.subscribe(event => {
     if (!event.sender.isOp) return
 
     // Add debug commands here
+
+    if (event.message === '!debug reset_jigsaw_bounds') {
+        let placedBoundsLength = 0
+
+        while (true) {
+            if (world.getDynamicProperty(`jigsaw:placed_bounds_${placedBoundsLength}`) == undefined) break
+
+            world.setDynamicProperty(`jigsaw:placed_bounds_${placedBoundsLength}`, '[]')
+
+            placedBoundsLength++
+        }
+    }
 })
+
+let boundsDebugIndex = 0
 
 world.afterEvents.worldInitialize.subscribe(event => {
     system.runInterval(() => {
         for (const player of world.getAllPlayers()) {
             if (!player.getTags().includes('debug')) continue
 
-            const boundingBoxes = getPlacedBounds()
+            let boundingBoxes = getPlacedBounds()
+            boundingBoxes = boundingBoxes.slice(boundsDebugIndex % boundingBoxes.length, (boundsDebugIndex + 40) % boundingBoxes.length)
 
             for (const bounds of boundingBoxes) {
                 try {
@@ -155,7 +170,9 @@ world.afterEvents.worldInitialize.subscribe(event => {
                 } catch { }
             }
         }
-    }, 20)
+
+        boundsDebugIndex += 40
+    }, 2)
 })
 
 function shuffle(array) {
@@ -175,6 +192,8 @@ const structureBranchesCache: { [key: string]: StructureBranches } = {}
 
 async function getBranches(name: string, position: Vector3, bounds: Bounds, dimension): Promise<StructureBranches> {
     if (structureBranchesCache[name]) return structureBranchesCache[name]
+
+    const mutex = await lockBoundsMutex([bounds])
 
     const entities = (await placeStructureAndGetEntities(name, position, '0_degrees', true, bounds, dimension))
 
@@ -204,11 +223,15 @@ async function getBranches(name: string, position: Vector3, bounds: Bounds, dime
 
     structureBranchesCache[name] = result
 
+    unlockBoundsMutex(mutex)
+
     return result
 }
 
 export async function getPlacement(position: Vector3, dimension: Dimension, data: JigsawBlockData, targetPool: TemplatePool): Promise<PlacementResult | null> {
     const targetPoolElements: TemplatePoolElement[] = JSON.parse(JSON.stringify(targetPool.elements))
+
+    const placementMutexes: MutexRequest[] = []
 
     while (targetPoolElements.length > 0) {
         const chosenStructure: TemplatePoolElement = weightedRandom(targetPoolElements)
@@ -385,6 +408,9 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 size: bounds.size
             }
 
+            const mutex = await lockBoundsMutex([placementBounds])
+            placementMutexes.push(mutex)
+
             const placedBounds = getPlacedBounds()
 
             let canPlace = true
@@ -407,15 +433,32 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                     x: position.x + sourceOffset.x,
                     y: position.y + sourceOffset.y,
                     z: position.z + sourceOffset.z,
-                }
+                },
+                mutex
             })
 
             break
         }
 
-        if (validPlacements.length === 0) continue
+        if (validPlacements.length === 0) {
+            for (const mutex of placementMutexes) {
+                unlockBoundsMutex(mutex)
+            }
 
-        return validPlacements[Math.floor(Math.random() * validPlacements.length)]
+            continue
+        }
+
+        const placement = validPlacements[Math.floor(Math.random() * validPlacements.length)]
+
+        for (const mutex of placementMutexes.filter(mutex => mutex !== placement.mutex)) {
+            unlockBoundsMutex(mutex)
+        }
+
+        return placement
+    }
+
+    for (const mutex of placementMutexes) {
+        unlockBoundsMutex(mutex)
     }
 
     return null
@@ -461,6 +504,8 @@ async function generate(source: Entity) {
         if (targetPool == undefined || targetPool.elements.length == 0 || targetPool.id == "minecraft:empty") {
             block.setType(data.turnsInto)
 
+            world.sendMessage('Failed to place!')
+
             return
         }
 
@@ -473,7 +518,9 @@ async function generate(source: Entity) {
 
     const branchEntities = await placeStructureAndGetEntities(placement.name, placement.position, placement.rotation, false, placement.bounds, dimension)
 
-    for (const branchEntity of branchEntities) {
+    unlockBoundsMutex(placement.mutex)
+
+    for (const branchEntity of shuffle(branchEntities) as Entity[]) {
         if (branchEntity.typeId !== 'jigsaw:jigsaw_data') continue
 
         const branchData: JigsawBlockData = JSON.parse(branchEntity.getDynamicProperty('jigsawData') as string)
@@ -523,7 +570,9 @@ world.afterEvents.entityLoad.subscribe(async event => {
                 if (playerPlaced.x == block.location.x && playerPlaced.y == block.location.y && playerPlaced.z == block.location.z) return
             }
 
+            world.sendMessage('Generating main!')
+
             generate(event.entity)
         } catch { }
-    }, 10)
+    }, 2)
 })

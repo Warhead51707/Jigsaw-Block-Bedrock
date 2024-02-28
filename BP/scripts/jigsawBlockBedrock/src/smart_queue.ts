@@ -2,68 +2,106 @@ import { world, system, Dimension, Vector3, Entity } from "@minecraft/server"
 import { Bounds } from "./types"
 import { boundsIntersect } from "./jigsaw_math"
 
+async function waitTickFast() {
+    await new Promise<void>(res => {
+        system.run(res)
+    })
+}
+
 async function waitTick() {
     await new Promise<void>(res => {
         system.runTimeout(res, 1)
     })
 }
 
-const queue: { [key: string]: { name: string, position: Vector3, rotation: string, onlyEntities: boolean, bounds: Bounds, dimension: Dimension, resolve: (entities: Entity[]) => void, loading: boolean } } = {}
-let nextQueueId = 0
+export interface MutexRequest {
+    readonly bounds: Bounds[],
+    readonly activate: () => {}
+}
 
-export async function placeStructureAndGetEntities(name: string, position: Vector3, rotation: string, onlyEntities: boolean, bounds: Bounds, dimension: Dimension): Promise<Entity[]> {
-    const task: any = { name, bounds, position, rotation, onlyEntities, loading: false, dimension }
+const activeMutexes: MutexRequest[] = []
+const mutexQueue: MutexRequest[] = []
 
-    const result = new Promise<Entity[]>(resolve => {
-        task.resolve = resolve
+export async function lockBoundsMutex(bounds: Bounds[]): Promise<MutexRequest> {
+    let activate = null
+
+    const promise = new Promise<void>(resolve => {
+        activate = resolve
     })
 
-    const id = nextQueueId
-    nextQueueId++
+    const request = {
+        bounds,
+        activate
+    }
 
-    queue[id] = task
+    mutexQueue.push(request)
 
-    return await result
+    await promise
+
+    return request
 }
+
+export function unlockBoundsMutex(request: MutexRequest) {
+    activeMutexes.splice(activeMutexes.indexOf(request), 1)
+}
+
+export async function placeStructureAndGetEntities(name: string, position: Vector3, rotation: string, onlyEntities: boolean, bounds: Bounds, dimension: Dimension): Promise<Entity[]> {
+    const existingEntityIds = dimension.getEntities().map(entity => entity.id)
+
+    await dimension.runCommand(`structure load "${name}" ${position.x} ${position.y} ${position.z} ${rotation} none true ${!onlyEntities}`)
+    await waitTick()
+
+    const containedEntities = dimension.getEntities().filter(entity => boundsIntersect({ start: entity.location, size: { x: 0, y: 0, z: 0 } }, bounds))
+
+    return containedEntities.filter(entity => !existingEntityIds.includes(entity.id))
+}
+
+function handleMutexes() {
+    if (mutexQueue.length === 0) return
+
+    // let dispatchedMutexes = 0
+
+    console.warn(mutexQueue.length)
+
+    for (const mutex of mutexQueue) {
+        let canLoad = true
+
+        for (const myBounds of mutex.bounds) {
+            for (const otherMutex of activeMutexes) {
+                for (const otherBounds of otherMutex.bounds) {
+                    if (!boundsIntersect(myBounds, otherBounds)) continue
+
+                    canLoad = false
+
+                    break
+                }
+
+                if (!canLoad) break
+            }
+
+            if (!canLoad) break
+        }
+
+        if (!canLoad) continue
+
+        activeMutexes.push(mutex)
+        mutexQueue.splice(mutexQueue.indexOf(mutex), 1)
+        mutex.activate()
+
+        // dispatchedMutexes++
+    }
+
+    // world.sendMessage('Dispatched ' + dispatchedMutexes.toString() + ' mutexes out of ' + mutexQueue.length.toString())
+}
+
+// world.afterEvents.chatSend.subscribe(event => {
+//     if (event.message !== 'step') return
+
+//     handleMutexes()
+// })
 
 world.afterEvents.worldInitialize.subscribe(event => {
     system.runInterval(() => {
-        const loadedBounds = Object.values(queue).filter(otherItem => otherItem.loading).map(otherItem => otherItem.bounds)
-
-        for (const id of Object.keys(queue)) {
-            const queueItem = queue[id]
-
-            if (queueItem.loading) continue
-
-            let canLoad = true
-
-            for (const otherBounds of loadedBounds) {
-                if (!boundsIntersect(queueItem.bounds, otherBounds)) continue
-
-                canLoad = false
-
-                break
-            }
-
-            if (!canLoad) continue
-
-            loadedBounds.push(queueItem.bounds)
-            queueItem.loading = true
-
-            async function load() {
-                const existingEntityIds = queueItem.dimension.getEntities().map(entity => entity.id)
-
-                await queueItem.dimension.runCommand(`structure load "${queueItem.name}" ${queueItem.position.x} ${queueItem.position.y} ${queueItem.position.z} ${queueItem.rotation} none true ${!queueItem.onlyEntities}`)
-                await waitTick()
-
-                delete queue[id]
-
-                const containedEntities = queueItem.dimension.getEntities().filter(entity => boundsIntersect({ start: entity.location, size: { x: 0, y: 0, z: 0 } }, queueItem.bounds))
-
-                queueItem.resolve(containedEntities.filter(entity => !existingEntityIds.includes(entity.id)))
-            }
-
-            load()
-        }
-    }, 1)
+        handleMutexes()
+    }, 0)
 })

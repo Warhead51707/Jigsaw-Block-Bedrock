@@ -1,4 +1,5 @@
 import { Vector3 } from "@minecraft/server"
+import { MutexRequest } from './smart_queue.js'
 
 export type JigsawMacroData = {
     macroEnabled: boolean,
@@ -50,6 +51,7 @@ export interface PlacementResult {
     rotation: "0_degrees" | "90_degrees" | "180_degrees" | "270_degrees",
     bounds: Bounds
     connectedPosition: Vector3,
+    mutex: MutexRequest
 }
 
 export type StructureBranches = { data: JigsawBlockData, offset: Vector3 }[]

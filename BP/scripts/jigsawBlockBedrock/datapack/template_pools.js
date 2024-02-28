@@ -154,5 +154,17 @@ export const templatePools = [
                 }
             }
         ]
-    }
+    },
+    {
+        id: 'test:col',
+        fallback: 'minecraft:empty',
+        elements: [
+            {
+                weight: 1,
+                element: {
+                    location: 'test:col_5_5_5',
+                },
+            },
+        ],
+    },
 ]
