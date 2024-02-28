@@ -2,12 +2,6 @@ import { world, system, Dimension, Vector3, Entity } from "@minecraft/server"
 import { Bounds } from "./types"
 import { boundsIntersect } from "./jigsaw_math"
 
-async function waitTickFast() {
-    await new Promise<void>(res => {
-        system.run(res)
-    })
-}
-
 async function waitTick() {
     await new Promise<void>(res => {
         system.runTimeout(res, 1)
@@ -59,10 +53,6 @@ export async function placeStructureAndGetEntities(name: string, position: Vecto
 function handleMutexes() {
     if (mutexQueue.length === 0) return
 
-    // let dispatchedMutexes = 0
-
-    console.warn(mutexQueue.length)
-
     for (const mutex of mutexQueue) {
         let canLoad = true
 
@@ -87,18 +77,8 @@ function handleMutexes() {
         activeMutexes.push(mutex)
         mutexQueue.splice(mutexQueue.indexOf(mutex), 1)
         mutex.activate()
-
-        // dispatchedMutexes++
     }
-
-    // world.sendMessage('Dispatched ' + dispatchedMutexes.toString() + ' mutexes out of ' + mutexQueue.length.toString())
 }
-
-// world.afterEvents.chatSend.subscribe(event => {
-//     if (event.message !== 'step') return
-
-//     handleMutexes()
-// })
 
 world.afterEvents.worldInitialize.subscribe(event => {
     system.runInterval(() => {

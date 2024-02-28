@@ -228,10 +228,15 @@ async function getBranches(name: string, position: Vector3, bounds: Bounds, dime
     return result
 }
 
+interface PossiblePlacements {
+    position: Vector3,
+    bounds: Bounds,
+    sourceOffset: Vector3,
+    targetRotation: '0_degrees' | '90_degrees' | '180_degrees' | '270_degrees'
+}
+
 export async function getPlacement(position: Vector3, dimension: Dimension, data: JigsawBlockData, targetPool: TemplatePool): Promise<PlacementResult | null> {
     const targetPoolElements: TemplatePoolElement[] = JSON.parse(JSON.stringify(targetPool.elements))
-
-    const placementMutexes: MutexRequest[] = []
 
     while (targetPoolElements.length > 0) {
         const chosenStructure: TemplatePoolElement = weightedRandom(targetPoolElements)
@@ -239,7 +244,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
         const bounds = {
             start: position,
-            size: parseSize(chosenStructure.element.location)
+            size: parseSize(chosenStructure.element.location),
         }
 
         const branches = await getBranches(chosenStructure.element.location, position, bounds, dimension)
@@ -248,7 +253,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
         const sourceBlockFace = dimension.getBlock(position).permutation.getState('minecraft:block_face')
         const sourceCardinalDirection = dimension.getBlock(position).permutation.getState('minecraft:cardinal_direction')
 
-        const validPlacements: PlacementResult[] = []
+        const possiblePlacements: PossiblePlacements[] = []
 
         for (const branch of possibleBranches) {
             let targetRotation: '0_degrees' | '90_degrees' | '180_degrees' | '270_degrees' = '0_degrees'
@@ -408,14 +413,24 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 size: bounds.size
             }
 
-            const mutex = await lockBoundsMutex([placementBounds])
-            placementMutexes.push(mutex)
+            possiblePlacements.push({
+                position: placementPosition,
+                bounds: placementBounds,
+                sourceOffset,
+                targetRotation
+            })
+        }
 
+        const validPlacements: PlacementResult[] = []
+
+        const mutex = await lockBoundsMutex(possiblePlacements.map(placement => placement.bounds))
+
+        for (const possiblePlacement of possiblePlacements) {
             const placedBounds = getPlacedBounds()
 
             let canPlace = true
             for (const otherBounds of placedBounds) {
-                if (!boundsIntersect(placementBounds, otherBounds) || boundsFit(placementBounds, otherBounds)) continue
+                if (!boundsIntersect(possiblePlacement.bounds, otherBounds) || boundsFit(possiblePlacement.bounds, otherBounds)) continue
 
                 canPlace = false
 
@@ -426,13 +441,13 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
             validPlacements.push({
                 name: chosenStructure.element.location,
-                position: placementPosition,
-                rotation: targetRotation,
-                bounds: placementBounds,
+                position: possiblePlacement.position,
+                rotation: possiblePlacement.targetRotation,
+                bounds: possiblePlacement.bounds,
                 connectedPosition: {
-                    x: position.x + sourceOffset.x,
-                    y: position.y + sourceOffset.y,
-                    z: position.z + sourceOffset.z,
+                    x: position.x + possiblePlacement.sourceOffset.x,
+                    y: position.y + possiblePlacement.sourceOffset.y,
+                    z: position.z + possiblePlacement.sourceOffset.z,
                 },
                 mutex
             })
@@ -441,24 +456,12 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
         }
 
         if (validPlacements.length === 0) {
-            for (const mutex of placementMutexes) {
-                unlockBoundsMutex(mutex)
-            }
+            unlockBoundsMutex(mutex)
 
             continue
         }
 
-        const placement = validPlacements[Math.floor(Math.random() * validPlacements.length)]
-
-        for (const mutex of placementMutexes.filter(mutex => mutex !== placement.mutex)) {
-            unlockBoundsMutex(mutex)
-        }
-
-        return placement
-    }
-
-    for (const mutex of placementMutexes) {
-        unlockBoundsMutex(mutex)
+        return validPlacements[Math.floor(Math.random() * validPlacements.length)]
     }
 
     return null
