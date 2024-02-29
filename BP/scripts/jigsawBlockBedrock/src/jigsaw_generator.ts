@@ -573,5 +573,5 @@ world.afterEvents.entityLoad.subscribe(async event => {
 
             generate(event.entity)
         } catch { }
-    }, 2)
+    }, 3)
 })

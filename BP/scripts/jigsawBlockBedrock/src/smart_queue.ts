@@ -8,6 +8,12 @@ async function waitTick() {
     })
 }
 
+async function waitTickFast() {
+    await new Promise<void>(res => {
+        system.run(res)
+    })
+}
+
 export interface MutexRequest {
     readonly bounds: Bounds[],
     readonly activate: () => {}
@@ -44,6 +50,7 @@ export async function placeStructureAndGetEntities(name: string, position: Vecto
 
     await dimension.runCommand(`structure load "${name}" ${position.x} ${position.y} ${position.z} ${rotation} none true ${!onlyEntities}`)
     await waitTick()
+    await waitTickFast()
 
     const containedEntities = dimension.getEntities().filter(entity => boundsIntersect({ start: entity.location, size: { x: 0, y: 0, z: 0 } }, bounds))
 
