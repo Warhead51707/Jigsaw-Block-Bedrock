@@ -6,7 +6,7 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
     if (placeJigsaw.block.typeId != "jigsaw:jigsaw_block") return
 
     // player placed flag
-    let playerPlacedJigsaws: Vector3[] = world.getDynamicProperty("jigsaw:player_placed") as any
+    let playerPlacedJigsaws: Vector3[] = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
 
     if (!Array.isArray(playerPlacedJigsaws)) {
         world.setDynamicProperty("jigsaw:player_placed", "[]")
