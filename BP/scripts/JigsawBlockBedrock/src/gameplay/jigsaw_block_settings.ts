@@ -1,6 +1,6 @@
 import { world, system, Dimension, Entity } from "@minecraft/server"
 import { ModalFormData } from "@minecraft/server-ui"
-import { JigsawBlockData } from "./types"
+import { JigsawBlockData } from "../types"
 
 let hasOpened: any = []
 

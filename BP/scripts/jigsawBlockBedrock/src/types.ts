@@ -33,11 +33,24 @@ export type TemplatePool = {
 
 export type TemplatePoolElement = {
     weight: number,
-    element: TemplatePoolElementData
+    element: TemplatePoolSubElement | EmptyPoolElement
 }
 
-type TemplatePoolElementData = {
-    location: string
+export type TemplatePoolSubElement = (EmptyPoolElement & SinglePoolElement) | (EmptyPoolElement & ListPoolElement)
+
+export type EmptyPoolElement = {
+    element_type: string
+}
+
+export type SinglePoolElement = {
+    projection: string,
+    location: string,
+    processors: string
+}
+
+export type ListPoolElement = {
+    projection: string,
+    elements: TemplatePoolSubElement[]
 }
 
 export interface Bounds {

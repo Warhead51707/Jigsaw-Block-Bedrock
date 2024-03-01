@@ -1,5 +1,5 @@
 import { world } from "@minecraft/server"
-import { Bounds } from "./types"
+import { Bounds } from "../types"
 
 export function weightedRandom(weightedArray: any[]): any {
     const weights = []

@@ -1,5 +1,5 @@
 import { world, Dimension, Entity, Block, Vector3, system } from '@minecraft/server'
-import { JigsawBlockData, JigsawMacroData } from './types'
+import { JigsawBlockData, JigsawMacroData } from '../types'
 
 export function getMacroData(): JigsawMacroData[] {
     try {

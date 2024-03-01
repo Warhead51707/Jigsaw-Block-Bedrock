@@ -1,6 +1,6 @@
 import { world, system, Dimension, Vector3, Entity } from "@minecraft/server"
-import { Bounds } from "./types"
-import { boundsIntersect } from "./jigsaw_math"
+import { Bounds } from "../types"
+import { boundsIntersect } from "../util/jigsaw_math"
 
 async function waitTick() {
     await new Promise<void>(res => {
