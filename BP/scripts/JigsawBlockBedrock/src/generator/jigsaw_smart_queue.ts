@@ -90,5 +90,5 @@ function handleMutexes() {
 world.afterEvents.worldInitialize.subscribe(event => {
     system.runInterval(() => {
         handleMutexes()
-    }, 0)
+    }, 20)
 })
