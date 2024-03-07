@@ -67,29 +67,29 @@ async function generate(source: Entity) {
         return
     }
 
-    let placement = await getPlacement(position, dimension, data, targetPool)
-
     const targetPoolLevels: number = targetPool.levels == undefined ? 20 : targetPool.levels
 
-    // fallbacks
-    while (placement == null || data.level == targetPoolLevels) {
-        targetPool = getTemplatePool(targetPool.fallback)
-
-        if (data.level == targetPoolLevels && placement != null) {
-            unlockBoundsMutex(placement.mutex)
-        }
-
-        if (targetPool == null) {
+    if (data.level >= targetPoolLevels) {
+        if (targetPool.fallback == undefined) {
             block.setType(data.turnsInto)
 
             return
         }
 
-        placement = await getPlacement(position, dimension, data, targetPool)
+        targetPool = getTemplatePool(targetPool.fallback)
 
+        if (targetPool == undefined) {
+            block.setType(data.turnsInto)
+
+            return
+        }
     }
 
+    let placement = await getPlacement(position, dimension, data, targetPool)
+
     block.setType(data.turnsInto)
+
+    if (placement == null) return
 
     addPlacedBounds(placement.bounds)
 
@@ -418,12 +418,19 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
         return validPlacements[Math.floor(Math.random() * validPlacements.length)]
     }
+
+    if (targetPool.fallback == undefined) return null
+
+    const fallbackPool = getTemplatePool(targetPool.fallback)
+
+    if (fallbackPool == undefined) return null
+
     //} catch (err) {
     // console.warn(err)
     //return null
     //  }
 
-    return null
+    return await getPlacement(position, dimension, data, fallbackPool)
 }
 
 async function getBranches(name: string, position: Vector3, bounds: Bounds, dimension): Promise<StructureBranches> {

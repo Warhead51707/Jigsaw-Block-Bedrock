@@ -36,15 +36,12 @@ world.beforeEvents.chatSend.subscribe(event => {
 
 
 //Structure Bounds Debug
-let boundsDebugIndex = 0
-
 world.afterEvents.worldInitialize.subscribe(event => {
     system.runInterval(() => {
         for (const player of world.getAllPlayers()) {
             if (!player.getTags().includes('debug')) continue
 
             let boundingBoxes = getPlacedBounds()
-            boundingBoxes = boundingBoxes.slice(boundsDebugIndex % boundingBoxes.length, (boundsDebugIndex + 40) % boundingBoxes.length)
 
             for (const bounds of boundingBoxes) {
                 try {
@@ -128,7 +125,5 @@ world.afterEvents.worldInitialize.subscribe(event => {
                 } catch { }
             }
         }
-
-        boundsDebugIndex += 40
-    }, 2)
+    }, 30)
 })
