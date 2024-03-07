@@ -1,4 +1,4 @@
-import { world, Dimension, Entity, Block, Vector3, system } from '@minecraft/server'
+import { world, Dimension, Entity, Block, Vector3, system, Structure, StructureRotation } from '@minecraft/server'
 import { JigsawBlockData, TemplatePool, TemplatePoolElement, PlacementResult, Bounds, StructureBranches, SinglePoolElement, EmptyPoolElement, ListPoolElement, TemplatePoolSubElement } from '../types'
 import { templatePools } from '../../datapack/template_pools'
 import { weightedRandom, boundsIntersect, boundsFit, randomMinMax, boundsFitsSmaller } from '../util/jigsaw_math'
@@ -50,6 +50,12 @@ async function generate(source: Entity) {
 
     const data: JigsawBlockData = JSON.parse(source.getDynamicProperty('jigsawData') as string)
 
+    dimension.spawnEntity("jigsaw:jigsaw_loader", {
+        x: source.location.x,
+        y: source.location.y - 1,
+        z: source.location.z
+    })
+
     source.remove()
 
     // This jigsaw has no targetPool to place so we stop here
@@ -93,7 +99,9 @@ async function generate(source: Entity) {
 
     addPlacedBounds(placement.bounds)
 
-    const branchEntities = await placeStructureAndGetEntities(placement.structures[0], placement.position, placement.rotation, false, placement.bounds, dimension)
+    const placementStructure: Structure = placement.structures[0]
+
+    const branchEntities = await placeStructureAndGetEntities(placementStructure, placement.position, placement.rotation, false, placement.bounds, dimension)
 
     for (const branchEntity of shuffle(branchEntities) as Entity[]) {
         if (branchEntity.typeId !== 'jigsaw:jigsaw_data') continue
@@ -122,7 +130,9 @@ async function generate(source: Entity) {
     }
 
     for (let i = 1; i < placement.structures.length; i++) {
-        const otherEntities = await placeStructureAndGetEntities(placement.structures[i], placement.position, placement.rotation, false, placement.bounds, dimension)
+        const otherPlacementStructure: Structure = placement.structures[i]
+
+        const otherEntities = await placeStructureAndGetEntities(otherPlacementStructure, placement.position, placement.rotation, false, placement.bounds, dimension)
 
         for (const otherEntity of otherEntities) {
             const otherEntityBranchData: JigsawBlockData = JSON.parse(otherEntity.getDynamicProperty('jigsawData') as string)
@@ -143,21 +153,23 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
     while (targetPoolElements.length > 0) {
         //Template pool logic
 
-        let structuresToPlace: string[] = []
+        let structuresToPlace: Structure[] = []
 
-        let chosenStructure: TemplatePoolElement | null = elementWeightedRandom(targetPoolElements)
+        let chosenElement: TemplatePoolElement | null = elementWeightedRandom(targetPoolElements)
 
-        if (chosenStructure == null || chosenStructure == undefined) return null
+        if (chosenElement == null || chosenElement == undefined) return null
 
-        targetPoolElements.splice(targetPoolElements.indexOf(chosenStructure), 1)
+        targetPoolElements.splice(targetPoolElements.indexOf(chosenElement), 1)
 
-        if (chosenStructure.element.element_type == "minecraft:single_pool_element") {
-            structuresToPlace.push((chosenStructure.element as EmptyPoolElement & SinglePoolElement).location)
+        if (chosenElement.element.element_type == "minecraft:single_pool_element") {
+            const structure: Structure = world.structureManager.get((chosenElement.element as EmptyPoolElement & SinglePoolElement).location)
+            structuresToPlace.push(structure)
         }
 
-        if (chosenStructure.element.element_type == "minecraft:list_pool_element") {
-            for (const element of (chosenStructure.element as ListPoolElement).elements) {
-                structuresToPlace.push((element as EmptyPoolElement & SinglePoolElement).location)
+        if (chosenElement.element.element_type == "minecraft:list_pool_element") {
+            for (const element of (chosenElement.element as ListPoolElement).elements) {
+                const structure: Structure = world.structureManager.get((chosenElement.element as EmptyPoolElement & SinglePoolElement).location)
+                structuresToPlace.push(structure)
             }
         }
 
@@ -165,10 +177,11 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
         const bounds = {
             start: position,
-            size: parseSize(structuresToPlace[0]),
+            size: structuresToPlace[0].size,
         }
 
-        const branches = await getBranches(structuresToPlace[0], position, bounds, dimension)
+        const branches = await getBranches(structuresToPlace[0].id, position, bounds, dimension)
+
         const possibleBranches = shuffle(branches.filter(branch => branch.data.name === data.targetName)) as StructureBranches
 
         const sourceBlockFace = dimension.getBlock(position).permutation.getState('minecraft:block_face')
@@ -177,63 +190,63 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
         const possiblePlacements: PossiblePlacements[] = []
 
         for (const branch of possibleBranches) {
-            let targetRotation: '0_degrees' | '90_degrees' | '180_degrees' | '270_degrees' = '0_degrees'
+            let targetRotation: StructureRotation = StructureRotation.None
 
             if (branch.data.blockFace === 'north') {
-                if (sourceBlockFace === 'north') targetRotation = '180_degrees'
-                if (sourceBlockFace === 'east') targetRotation = '270_degrees'
-                if (sourceBlockFace === 'west') targetRotation = '90_degrees'
-                if (sourceBlockFace === 'south') targetRotation = '0_degrees'
+                if (sourceBlockFace === 'north') targetRotation = StructureRotation.Rotate180
+                if (sourceBlockFace === 'east') targetRotation = StructureRotation.Rotate270
+                if (sourceBlockFace === 'west') targetRotation = StructureRotation.Rotate90
+                if (sourceBlockFace === 'south') targetRotation = StructureRotation.None
             }
 
             if (branch.data.blockFace === 'east') {
-                if (sourceBlockFace === 'north') targetRotation = '90_degrees'
-                if (sourceBlockFace === 'east') targetRotation = '180_degrees'
-                if (sourceBlockFace === 'west') targetRotation = '0_degrees'
-                if (sourceBlockFace === 'south') targetRotation = '270_degrees'
+                if (sourceBlockFace === 'north') targetRotation = StructureRotation.Rotate90
+                if (sourceBlockFace === 'east') targetRotation = StructureRotation.Rotate180
+                if (sourceBlockFace === 'west') targetRotation = StructureRotation.None
+                if (sourceBlockFace === 'south') targetRotation = StructureRotation.Rotate270
             }
 
             if (branch.data.blockFace === 'west') {
-                if (sourceBlockFace === 'north') targetRotation = '270_degrees'
-                if (sourceBlockFace === 'east') targetRotation = '0_degrees'
-                if (sourceBlockFace === 'west') targetRotation = '180_degrees'
-                if (sourceBlockFace === 'south') targetRotation = '90_degrees'
+                if (sourceBlockFace === 'north') targetRotation = StructureRotation.Rotate270
+                if (sourceBlockFace === 'east') targetRotation = StructureRotation.None
+                if (sourceBlockFace === 'west') targetRotation = StructureRotation.Rotate180
+                if (sourceBlockFace === 'south') targetRotation = StructureRotation.Rotate90
             }
 
             if (branch.data.blockFace === 'south') {
-                if (sourceBlockFace === 'north') targetRotation = '0_degrees'
-                if (sourceBlockFace === 'east') targetRotation = '90_degrees'
-                if (sourceBlockFace === 'west') targetRotation = '270_degrees'
-                if (sourceBlockFace === 'south') targetRotation = '180_degrees'
+                if (sourceBlockFace === 'north') targetRotation = StructureRotation.None
+                if (sourceBlockFace === 'east') targetRotation = StructureRotation.Rotate90
+                if (sourceBlockFace === 'west') targetRotation = StructureRotation.Rotate270
+                if (sourceBlockFace === 'south') targetRotation = StructureRotation.Rotate180
             }
 
             if (branch.data.jointType === "aligned" && data.jointType === "aligned") {
                 if (branch.data.cardinalDirection === "north") {
-                    if (sourceCardinalDirection === "north") targetRotation = '0_degrees'
-                    if (sourceCardinalDirection === "east") targetRotation = '90_degrees'
-                    if (sourceCardinalDirection === "west") targetRotation = '270_degrees'
-                    if (sourceCardinalDirection === "south") targetRotation = '180_degrees'
+                    if (sourceCardinalDirection === "north") targetRotation = StructureRotation.None
+                    if (sourceCardinalDirection === "east") targetRotation = StructureRotation.Rotate90
+                    if (sourceCardinalDirection === "west") targetRotation = StructureRotation.Rotate270
+                    if (sourceCardinalDirection === "south") targetRotation = StructureRotation.Rotate180
                 }
 
                 if (branch.data.cardinalDirection === "east") {
-                    if (sourceCardinalDirection === "north") targetRotation = '270_degrees'
-                    if (sourceCardinalDirection === "east") targetRotation = '0_degrees'
-                    if (sourceCardinalDirection === "west") targetRotation = '180_degrees'
-                    if (sourceCardinalDirection === "south") targetRotation = '90_degrees'
+                    if (sourceCardinalDirection === "north") targetRotation = StructureRotation.Rotate270
+                    if (sourceCardinalDirection === "east") targetRotation = StructureRotation.None
+                    if (sourceCardinalDirection === "west") targetRotation = StructureRotation.Rotate180
+                    if (sourceCardinalDirection === "south") targetRotation = StructureRotation.Rotate90
                 }
 
                 if (branch.data.cardinalDirection === "west") {
-                    if (sourceCardinalDirection === "north") targetRotation = '90_degrees'
-                    if (sourceCardinalDirection === "east") targetRotation = '180_degrees'
-                    if (sourceCardinalDirection === "west") targetRotation = '0_degrees'
-                    if (sourceCardinalDirection === "south") targetRotation = '270_degrees'
+                    if (sourceCardinalDirection === "north") targetRotation = StructureRotation.Rotate90
+                    if (sourceCardinalDirection === "east") targetRotation = StructureRotation.Rotate180
+                    if (sourceCardinalDirection === "west") targetRotation = StructureRotation.None
+                    if (sourceCardinalDirection === "south") targetRotation = StructureRotation.Rotate270
                 }
 
                 if (branch.data.cardinalDirection === "south") {
-                    if (sourceCardinalDirection === "north") targetRotation = '180_degrees'
-                    if (sourceCardinalDirection === "east") targetRotation = '270_degrees'
-                    if (sourceCardinalDirection === "west") targetRotation = '90_degrees'
-                    if (sourceCardinalDirection === "south") targetRotation = '0_degrees'
+                    if (sourceCardinalDirection === "north") targetRotation = StructureRotation.Rotate180
+                    if (sourceCardinalDirection === "east") targetRotation = StructureRotation.Rotate270
+                    if (sourceCardinalDirection === "west") targetRotation = StructureRotation.Rotate90
+                    if (sourceCardinalDirection === "south") targetRotation = StructureRotation.None
                 }
             }
 
@@ -241,7 +254,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
 
             if (branch.data.jointType === "rollable" && upOrDown) {
-                const rotations = ['0_degrees', '90_degrees', '180_degrees', '270_degrees']
+                const rotations = [StructureRotation.None, StructureRotation.Rotate90, StructureRotation.Rotate180, StructureRotation.Rotate270]
 
                 const randomIndex = randomMinMax(0, rotations.length - 1)
 
@@ -250,7 +263,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
             let branchOffset = branch.offset
 
-            if (targetRotation === '90_degrees') {
+            if (targetRotation === StructureRotation.Rotate90) {
                 branchOffset = {
                     x: bounds.size.z - branchOffset.z - 1,
                     y: branchOffset.y,
@@ -264,7 +277,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 }
             }
 
-            if (targetRotation === '180_degrees') {
+            if (targetRotation === StructureRotation.Rotate180) {
                 branchOffset = {
                     x: bounds.size.x - branchOffset.x - 1,
                     y: branchOffset.y,
@@ -272,7 +285,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 }
             }
 
-            if (targetRotation === '270_degrees') {
+            if (targetRotation === StructureRotation.Rotate270) {
                 branchOffset = {
                     x: branchOffset.z,
                     y: branchOffset.y,
@@ -376,11 +389,11 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
             if (!canPlace) continue
 
-            if (chosenStructure.element.element_type == "minecraft:list_pool_element" && structuresToPlace.length > 1) {
+            if (chosenElement.element.element_type == "minecraft:list_pool_element" && structuresToPlace.length > 1) {
                 for (const structure of structuresToPlace) {
                     const nextStructureBounds: Bounds = {
                         start: possiblePlacement.bounds.start,
-                        size: parseSize(structure)
+                        size: structure.size
                     }
 
                     if (!boundsIntersect(possiblePlacement.bounds, nextStructureBounds) || boundsFit(nextStructureBounds, possiblePlacement.bounds)) continue
@@ -438,7 +451,9 @@ async function getBranches(name: string, position: Vector3, bounds: Bounds, dime
 
     const mutex = await lockBoundsMutex([bounds])
 
-    const entities = (await placeStructureAndGetEntities(name, position, '0_degrees', true, bounds, dimension))
+    const structure: Structure = world.structureManager.get(name)
+
+    const entities = (await placeStructureAndGetEntities(structure, position, StructureRotation.None, true, bounds, dimension))
 
     const result = entities
         .filter(entity => entity.typeId === 'jigsaw:jigsaw_data')
@@ -452,6 +467,7 @@ async function getBranches(name: string, position: Vector3, bounds: Bounds, dime
                 data: JSON.parse(entity.getDynamicProperty('jigsawData') as string) as JigsawBlockData
             }
         })
+
 
     for (const entity of entities) {
         if (entity.typeId === 'jigsaw:jigsaw_data') {
@@ -467,6 +483,7 @@ async function getBranches(name: string, position: Vector3, bounds: Bounds, dime
     structureBranchesCache[name] = result
 
     unlockBoundsMutex(mutex)
+
 
     return result
 }

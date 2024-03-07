@@ -1,4 +1,4 @@
-import { world, Vector3 } from '@minecraft/server'
+import { world, Vector3, StructureRotation } from '@minecraft/server'
 import { Bounds } from '../types'
 
 
@@ -19,7 +19,7 @@ export interface PossiblePlacements {
     position: Vector3,
     bounds: Bounds,
     sourceOffset: Vector3,
-    targetRotation: '0_degrees' | '90_degrees' | '180_degrees' | '270_degrees'
+    targetRotation: StructureRotation
 }
 
 export function parseSize(name: string): Vector3 {

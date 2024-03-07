@@ -1,4 +1,4 @@
-import { world, system, Dimension, Vector3, Entity } from "@minecraft/server"
+import { world, system, Dimension, Vector3, Entity, Structure, StructureRotation } from "@minecraft/server"
 import { Bounds } from "../types"
 import { boundsIntersect } from "../util/jigsaw_math"
 
@@ -45,10 +45,14 @@ export function unlockBoundsMutex(request: MutexRequest) {
     activeMutexes.splice(activeMutexes.indexOf(request), 1)
 }
 
-export async function placeStructureAndGetEntities(name: string, position: Vector3, rotation: string, onlyEntities: boolean, bounds: Bounds, dimension: Dimension): Promise<Entity[]> {
+export async function placeStructureAndGetEntities(structure: Structure, position: Vector3, rotation: StructureRotation, onlyEntities: boolean, bounds: Bounds, dimension: Dimension): Promise<Entity[]> {
     const existingEntityIds = dimension.getEntities().map(entity => entity.id)
 
-    await dimension.runCommand(`structure load "${name}" ${position.x} ${position.y} ${position.z} ${rotation} none true ${!onlyEntities}`)
+    world.structureManager.place(structure.id, dimension, position, {
+        rotation: rotation,
+        includeEntities: !onlyEntities
+    })
+
     await waitTick()
     await waitTickFast()
 

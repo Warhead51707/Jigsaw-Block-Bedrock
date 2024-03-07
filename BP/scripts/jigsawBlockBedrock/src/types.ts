@@ -1,4 +1,4 @@
-import { Vector3 } from "@minecraft/server"
+import { Vector3, StructureRotation, Structure } from "@minecraft/server"
 import { MutexRequest } from './generator/jigsaw_smart_queue.js'
 
 export type JigsawMacroData = {
@@ -61,9 +61,9 @@ export interface Bounds {
 }
 
 export interface PlacementResult {
-    structures: string[],
+    structures: Structure[],
     position: Vector3,
-    rotation: "0_degrees" | "90_degrees" | "180_degrees" | "270_degrees",
+    rotation: StructureRotation,
     bounds: Bounds
     connectedPosition: Vector3,
     mutex: MutexRequest
