@@ -1,5 +1,5 @@
 {
-    "format_version": "1.20.60",
+    "format_version": "1.20.80",
     "minecraft:block": {
         "description": {
             "identifier": "jigsaw:jigsaw_block",
@@ -36,7 +36,11 @@
                 "condition": "q.block_state('minecraft:block_face') == 'north'",
                 "components": {
                     "minecraft:transformation": {
-                        "rotation": [0, 0, 0]
+                        "rotation": [
+                            0,
+                            0,
+                            0
+                        ]
                     }
                 }
             },
@@ -44,7 +48,11 @@
                 "condition": "q.block_state('minecraft:block_face') == 'south'",
                 "components": {
                     "minecraft:transformation": {
-                        "rotation": [0, 180, 0]
+                        "rotation": [
+                            0,
+                            180,
+                            0
+                        ]
                     }
                 }
             },
@@ -52,7 +60,11 @@
                 "condition": "q.block_state('minecraft:block_face') == 'west'",
                 "components": {
                     "minecraft:transformation": {
-                        "rotation": [0, 90, 0]
+                        "rotation": [
+                            0,
+                            90,
+                            0
+                        ]
                     }
                 }
             },
@@ -60,7 +72,11 @@
                 "condition": "q.block_state('minecraft:block_face') == 'east'",
                 "components": {
                     "minecraft:transformation": {
-                        "rotation": [0, 270, 0]
+                        "rotation": [
+                            0,
+                            270,
+                            0
+                        ]
                     }
                 }
             },
@@ -68,7 +84,11 @@
                 "condition": "q.block_state('minecraft:block_face') == 'up' && q.block_state('minecraft:cardinal_direction') == 'north'",
                 "components": {
                     "minecraft:transformation": {
-                        "rotation": [90, 0, 0]
+                        "rotation": [
+                            90,
+                            0,
+                            0
+                        ]
                     }
                 }
             },
