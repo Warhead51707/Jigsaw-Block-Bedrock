@@ -1,10 +1,12 @@
 import { world } from '@minecraft/server'
 import { templatePools } from '../../datapack/template_pools'
-import { TemplatePool, SinglePoolElement, EmptyPoolElement, ListPoolElement, TemplatePoolElement } from '../types'
+import { TemplatePool, SinglePoolElement, EmptyPoolElement, ListPoolElement, TemplatePoolElement, TemplatePoolSubElement } from '../types'
 import { weightedRandom } from '../util/jigsaw_math'
 
 
 export function getTemplatePool(id: string): TemplatePool | null {
+    if (id == "minecraft:empty") return null
+
     const foundTemplatePool: TemplatePool | undefined = templatePools.find(pool => pool.id == id)
 
     if (foundTemplatePool == undefined) {
@@ -14,14 +16,21 @@ export function getTemplatePool(id: string): TemplatePool | null {
 
     const fallbackTemplatePool: TemplatePool | undefined = templatePools.find(pool => pool.id == foundTemplatePool.fallback)
 
-    if (fallbackTemplatePool == undefined || foundTemplatePool.fallback == undefined || typeof foundTemplatePool.fallback != 'string') {
+    if ((fallbackTemplatePool == undefined || foundTemplatePool.fallback == undefined || typeof foundTemplatePool.fallback != 'string') && foundTemplatePool.fallback != "minecraft:empty") {
         console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${foundTemplatePool.id}' contains a non-existant fallback pool '${foundTemplatePool.fallback}`)
         return null
     }
 
-    if (foundTemplatePool.elements.length == 0 || foundTemplatePool.elements == undefined || typeof foundTemplatePool.elements != 'object') {
+    if (foundTemplatePool.elements == undefined || typeof foundTemplatePool.elements != 'object') {
         console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${foundTemplatePool.id}' contains no elements`)
         return null
+    }
+
+    if (foundTemplatePool.levels != undefined) {
+        if (foundTemplatePool.levels < 0 || foundTemplatePool.levels > 50 || typeof foundTemplatePool.levels != "number") {
+            console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${foundTemplatePool.id}' contains invalid levels value`)
+            return null
+        }
     }
 
     for (let poolElement of foundTemplatePool.elements) {
@@ -50,42 +59,72 @@ export function getTemplatePool(id: string): TemplatePool | null {
 
         //Single Pool
         if (poolElement.element.element_type == "minecraft:single_pool_element") {
-            const projection: string | undefined = (poolElement.element as SinglePoolElement).projection
-            const processors: string | undefined = (poolElement.element as SinglePoolElement).processors
-            const location: string | undefined = (poolElement.element as SinglePoolElement).location
-
-            if (projection == undefined || typeof projection != "string" || projection != "rigid") {
-                console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${foundTemplatePool.id}' contains a single pool element with invalid projection value`)
-                return null
-            }
-
-            if (processors == undefined || typeof processors != "string" || processors != "minecraft:empty") {
-                console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${foundTemplatePool.id}' contains a single pool element with invalid processors value`)
-                return null
-            }
-
-            if (location == undefined || typeof location != "string") {
-                console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${foundTemplatePool.id}' contains a single pool element with no location value`)
-                return null
-            }
+            if (singlePoolChecks(poolElement.element as EmptyPoolElement & SinglePoolElement, foundTemplatePool) == null) return null
 
             return foundTemplatePool
         }
 
-        //List Pool COMING SOON
-        if (poolElement.element.element_type == "minecraft:list_pool_element") return null
+        //List Pool
+        if (poolElement.element.element_type == "minecraft:list_pool_element") {
+            const projection: string | undefined = (poolElement.element as ListPoolElement).projection
+            const elements: TemplatePoolSubElement[] | undefined = (poolElement.element as ListPoolElement).elements
+
+            if (projection == undefined || typeof projection != "string" || projection != "rigid") {
+                console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${foundTemplatePool.id}' contains a list pool element with invalid projection value`)
+                return null
+            }
+
+            if (elements == undefined || typeof elements != "object" || elements.length == 0) {
+                console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${foundTemplatePool.id}' contains a list pool element with invalid elements value`)
+                return null
+            }
+
+            for (const element of elements) {
+                const elementType: string | undefined = (element as EmptyPoolElement & SinglePoolElement).element_type
+
+                if (elementType == undefined || elementType != "minecraft:single_pool_element") {
+                    console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${foundTemplatePool.id}' contains a list pool element with invalid element type value`)
+                    return null
+                }
+
+                if (singlePoolChecks(element as EmptyPoolElement & SinglePoolElement, foundTemplatePool) == null) return null
+            }
+
+            return foundTemplatePool
+        }
     }
 
 
-
     return null
+}
+
+function singlePoolChecks(element: EmptyPoolElement & SinglePoolElement, templatePool: TemplatePool): true | null {
+    const projection: string | undefined = element.projection
+    const processors: string | undefined = element.processors
+    const location: string | undefined = element.location
+
+    if (projection == undefined || typeof projection != "string" || projection != "rigid") {
+        console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${templatePool.id}' contains a single pool element with invalid projection value`)
+        return null
+    }
+
+    if (processors == undefined || typeof processors != "string" || processors != "minecraft:empty") {
+        console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${templatePool.id}' contains a single pool element with invalid processors value`)
+        return null
+    }
+
+    if (location == undefined || typeof location != "string") {
+        console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${templatePool.id}' contains a single pool element with no location value`)
+        return null
+    }
+
+    return true
 }
 
 export function elementWeightedRandom(elements: TemplatePoolElement[]): TemplatePoolElement | null {
     const chosenElement: TemplatePoolElement = weightedRandom(elements)
 
     if (chosenElement.element.element_type == "minecraft:empty_pool_element") return null
-    if (chosenElement.element.element_type == "minecraft:list_pool_element") return null
 
     return chosenElement
 }

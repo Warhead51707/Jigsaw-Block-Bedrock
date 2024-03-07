@@ -29,6 +29,8 @@ world.beforeEvents.chatSend.subscribe(event => {
 
             placedBoundsLength++
         }
+
+        event.cancel = true
     }
 })
 

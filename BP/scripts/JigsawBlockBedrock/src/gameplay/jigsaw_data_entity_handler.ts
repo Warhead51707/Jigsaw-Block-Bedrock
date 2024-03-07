@@ -6,9 +6,9 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
     if (placeJigsaw.block.typeId != "jigsaw:jigsaw_block") return
 
     // player placed flag
-    let playerPlacedJigsaws: Vector3[] = JSON.parse(world.getDynamicProperty("jigsaw:player_placed") as string)
+    let playerPlacedJigsaws: any = world.getDynamicProperty("jigsaw:player_placed") as any
 
-    if (!Array.isArray(playerPlacedJigsaws)) {
+    if (playerPlacedJigsaws == undefined) {
         world.setDynamicProperty("jigsaw:player_placed", "[]")
     }
 
@@ -54,6 +54,8 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         targetName: jigsawMacroData.targetName,
         turnsInto: jigsawMacroData.turnsInto,
         jointType: jigsawMacroData.jointType,
+        levels: 20,
+        level: 0,
         cardinalDirection: placeJigsaw.block.permutation.getState("minecraft:cardinal_direction") as string,
         blockFace: placeJigsaw.block.permutation.getState("minecraft:block_face") as string,
         branch: false

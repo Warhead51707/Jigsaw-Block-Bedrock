@@ -136,5 +136,76 @@ export const templatePools = [
                 }
             }
         ]
+    },
+    {
+        id: "dev:road",
+        fallback: "minecraft:empty",
+        levels: 7,
+        elements: [
+            {
+                weight: 1,
+                element: {
+                    element_type: "minecraft:single_pool_element",
+                    projection: "rigid",
+                    location: "jigsaw:tests/list_test/roads/road_1_9_1_3",
+                    processors: "minecraft:empty"
+                }
+            },
+            {
+                weight: 2,
+                element: {
+                    element_type: "minecraft:single_pool_element",
+                    projection: "rigid",
+                    location: "jigsaw:tests/list_test/roads/road_2_6_1_6",
+                    processors: "minecraft:empty"
+                }
+            },
+            {
+                weight: 3,
+                element: {
+                    element_type: "minecraft:single_pool_element",
+                    projection: "rigid",
+                    location: "jigsaw:tests/list_test/roads/road_3_9_1_6",
+                    processors: "minecraft:empty"
+                }
+            },
+            {
+                weight: 1,
+                element: {
+                    element_type: "minecraft:list_pool_element",
+                    projection: "rigid",
+                    elements: [
+                        {
+                            element_type: "minecraft:single_pool_element",
+                            projection: "rigid",
+                            location: "jigsaw:tests/list_test/buildings/small_home_9_9_9",
+                            processors: "minecraft:empty"
+                        },
+                        {
+                            element_type: "minecraft:single_pool_element",
+                            projection: "rigid",
+                            location: "jigsaw:tests/list_test/buildings/small_home_test_9_9_9",
+                            processors: "minecraft:empty"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        id: "jigsaw:tests/platforms",
+        fallback: "minecraft:empty",
+        levels: 5,
+        elements: [
+            {
+                weight: 100,
+                element: {
+                    element_type: "minecraft:single_pool_element",
+                    projection: "rigid",
+                    location: "jigsaw:tests/platforms/purpur_platform_3_1_3",
+                    processors: "minecraft:empty"
+                }
+            }
+        ]
     }
 ]

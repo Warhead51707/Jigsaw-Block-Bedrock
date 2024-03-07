@@ -26,11 +26,15 @@ export function boundsIntersect(a: Bounds, b: Bounds) {
 }
 
 export function boundsFit(smallerBounds: Bounds, largerBounds: Bounds) {
-    if (smallerBounds.start.x == largerBounds.start.x && smallerBounds.start.y == largerBounds.start.y && smallerBounds.start.z == largerBounds.start.z && smallerBounds.size.x == largerBounds.size.x && smallerBounds.size.y == largerBounds.size.y && smallerBounds.size.z == largerBounds.size.z) return false
-
     let xAxisFits = (smallerBounds.start.x >= largerBounds.start.x) && (smallerBounds.start.x + smallerBounds.size.x <= largerBounds.start.x + largerBounds.size.x)
     let yAxisFits = (smallerBounds.start.y >= largerBounds.start.y) && (smallerBounds.start.y + smallerBounds.size.y <= largerBounds.start.y + largerBounds.size.y)
     let zAxisFits = (smallerBounds.start.z >= largerBounds.start.z) && (smallerBounds.start.z + smallerBounds.size.z <= largerBounds.start.z + largerBounds.size.z)
 
     return xAxisFits && yAxisFits && zAxisFits
+}
+
+export function boundsFitsSmaller(smallerBounds: Bounds, largerBounds: Bounds) {
+    if (smallerBounds.start.x == largerBounds.start.x && smallerBounds.start.y == largerBounds.start.y && smallerBounds.start.z == largerBounds.start.z && smallerBounds.size.x == largerBounds.size.x && smallerBounds.size.y == largerBounds.size.y && smallerBounds.size.z == largerBounds.size.z) return false
+
+    return boundsFit(smallerBounds, largerBounds)
 }

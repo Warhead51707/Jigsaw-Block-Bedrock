@@ -1,5 +1,5 @@
 import { Vector3 } from "@minecraft/server"
-import { MutexRequest } from './smart_queue.js'
+import { MutexRequest } from './generator/jigsaw_smart_queue.js'
 
 export type JigsawMacroData = {
     macroEnabled: boolean,
@@ -17,7 +17,8 @@ export type JigsawBlockData = {
     targetName: string,
     turnsInto: string,
     jointType: "rollable" | "aligned",
-    keep?: boolean,
+    levels: number,
+    level: number,
 
     cardinalDirection: string,
     blockFace: string,
@@ -28,6 +29,7 @@ export type JigsawBlockData = {
 export type TemplatePool = {
     id: string,
     fallback: string,
+    levels?: number,
     elements: TemplatePoolElement[]
 }
 
@@ -59,7 +61,7 @@ export interface Bounds {
 }
 
 export interface PlacementResult {
-    name: string,
+    structures: string[],
     position: Vector3,
     rotation: "0_degrees" | "90_degrees" | "180_degrees" | "270_degrees",
     bounds: Bounds

@@ -1,7 +1,7 @@
 import { world, Dimension, Entity, Block, Vector3, system } from '@minecraft/server'
-import { JigsawBlockData, TemplatePool, TemplatePoolElement, PlacementResult, Bounds, StructureBranches, SinglePoolElement, EmptyPoolElement } from '../types'
+import { JigsawBlockData, TemplatePool, TemplatePoolElement, PlacementResult, Bounds, StructureBranches, SinglePoolElement, EmptyPoolElement, ListPoolElement, TemplatePoolSubElement } from '../types'
 import { templatePools } from '../../datapack/template_pools'
-import { weightedRandom, boundsIntersect, boundsFit, randomMinMax } from '../util/jigsaw_math'
+import { weightedRandom, boundsIntersect, boundsFit, randomMinMax, boundsFitsSmaller } from '../util/jigsaw_math'
 import { parseSize, getPlacedBounds, addPlacedBounds, PossiblePlacements, shuffle } from '../util/jigsaw_generator_utils'
 import { placeStructureAndGetEntities, lockBoundsMutex, unlockBoundsMutex, MutexRequest } from './jigsaw_smart_queue'
 import { getTemplatePool, elementWeightedRandom } from '../util/template_pool_utils'
@@ -53,7 +53,7 @@ async function generate(source: Entity) {
     source.remove()
 
     // This jigsaw has no targetPool to place so we stop here
-    if (data.targetPool === 'minecraft:empty') {
+    if (data.targetPool == 'minecraft:empty') {
         block.setType(data.turnsInto)
 
         return
@@ -61,7 +61,7 @@ async function generate(source: Entity) {
 
     let targetPool: TemplatePool = getTemplatePool(data.targetPool)
 
-    if (targetPool == null) {
+    if (targetPool == null || targetPool == undefined) {
         block.setType(data.turnsInto)
 
         return
@@ -69,31 +69,42 @@ async function generate(source: Entity) {
 
     let placement = await getPlacement(position, dimension, data, targetPool)
 
-    // fallbacks
-    while (placement == null) {
-        targetPool = templatePools.find(pool => pool.id == targetPool.fallback)
+    const targetPoolLevels: number = targetPool.levels == undefined ? 20 : targetPool.levels
 
-        if (targetPool.elements.length == 0 || targetPool.id == "minecraft:empty") {
+    // fallbacks
+    while (placement == null || data.level == targetPoolLevels) {
+        targetPool = getTemplatePool(targetPool.fallback)
+
+        if (data.level == targetPoolLevels && placement != null) {
+            unlockBoundsMutex(placement.mutex)
+        }
+
+        if (targetPool == null) {
             block.setType(data.turnsInto)
 
             return
         }
 
         placement = await getPlacement(position, dimension, data, targetPool)
+
     }
 
     block.setType(data.turnsInto)
 
     addPlacedBounds(placement.bounds)
 
-    const branchEntities = await placeStructureAndGetEntities(placement.name, placement.position, placement.rotation, false, placement.bounds, dimension)
-
-    unlockBoundsMutex(placement.mutex)
+    const branchEntities = await placeStructureAndGetEntities(placement.structures[0], placement.position, placement.rotation, false, placement.bounds, dimension)
 
     for (const branchEntity of shuffle(branchEntities) as Entity[]) {
         if (branchEntity.typeId !== 'jigsaw:jigsaw_data') continue
 
         const branchData: JigsawBlockData = JSON.parse(branchEntity.getDynamicProperty('jigsawData') as string)
+
+        branchData.branch = true
+        branchData.levels = targetPoolLevels
+        branchData.level = data.level + 1
+
+        branchEntity.setDynamicProperty('jigsawData', JSON.stringify(branchData))
 
         if (
             Math.floor(branchEntity.location.x) === placement.connectedPosition.x &&
@@ -107,32 +118,57 @@ async function generate(source: Entity) {
             continue
         }
 
-
-        branchData.branch = true
-        branchEntity.setDynamicProperty('jigsawData', JSON.stringify(branchData, null, 4))
-
         generate(branchEntity)
     }
+
+    for (let i = 1; i < placement.structures.length; i++) {
+        const otherEntities = await placeStructureAndGetEntities(placement.structures[i], placement.position, placement.rotation, false, placement.bounds, dimension)
+
+        for (const otherEntity of otherEntities) {
+            const otherEntityBranchData: JigsawBlockData = JSON.parse(otherEntity.getDynamicProperty('jigsawData') as string)
+
+            dimension.getBlock(otherEntity.location).setType(otherEntityBranchData.turnsInto)
+
+            otherEntity.remove()
+        }
+    }
+
+    unlockBoundsMutex(placement.mutex)
 }
 
 export async function getPlacement(position: Vector3, dimension: Dimension, data: JigsawBlockData, targetPool: TemplatePool): Promise<PlacementResult | null> {
+    // try {
     const targetPoolElements: TemplatePoolElement[] = JSON.parse(JSON.stringify(targetPool.elements))
 
     while (targetPoolElements.length > 0) {
+        //Template pool logic
+
+        let structuresToPlace: string[] = []
+
         let chosenStructure: TemplatePoolElement | null = elementWeightedRandom(targetPoolElements)
 
-        if (chosenStructure == null) return null
+        if (chosenStructure == null || chosenStructure == undefined) return null
 
         targetPoolElements.splice(targetPoolElements.indexOf(chosenStructure), 1)
 
-        const chosenStructureSubElement: EmptyPoolElement & SinglePoolElement = (chosenStructure.element as EmptyPoolElement & SinglePoolElement)
+        if (chosenStructure.element.element_type == "minecraft:single_pool_element") {
+            structuresToPlace.push((chosenStructure.element as EmptyPoolElement & SinglePoolElement).location)
+        }
+
+        if (chosenStructure.element.element_type == "minecraft:list_pool_element") {
+            for (const element of (chosenStructure.element as ListPoolElement).elements) {
+                structuresToPlace.push((element as EmptyPoolElement & SinglePoolElement).location)
+            }
+        }
+
+        ///
 
         const bounds = {
             start: position,
-            size: parseSize(chosenStructureSubElement.location),
+            size: parseSize(structuresToPlace[0]),
         }
 
-        const branches = await getBranches(chosenStructureSubElement.location, position, bounds, dimension)
+        const branches = await getBranches(structuresToPlace[0], position, bounds, dimension)
         const possibleBranches = shuffle(branches.filter(branch => branch.data.name === data.targetName)) as StructureBranches
 
         const sourceBlockFace = dimension.getBlock(position).permutation.getState('minecraft:block_face')
@@ -311,21 +347,54 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
         const mutex = await lockBoundsMutex(possiblePlacements.map(placement => placement.bounds))
 
         for (const possiblePlacement of possiblePlacements) {
+
+
             const placedBounds = getPlacedBounds()
+
+
+            const jigsawBounds: Bounds = {
+                size: {
+                    x: 1,
+                    y: 1,
+                    z: 1
+                },
+                start: position
+            }
+
+
 
             let canPlace = true
             for (const otherBounds of placedBounds) {
-                if (!boundsIntersect(possiblePlacement.bounds, otherBounds) || boundsFit(possiblePlacement.bounds, otherBounds)) continue
+                if (!boundsIntersect(possiblePlacement.bounds, otherBounds) || (boundsFitsSmaller(possiblePlacement.bounds, otherBounds) && boundsFit(jigsawBounds, otherBounds))) continue
 
                 canPlace = false
 
                 break
             }
 
+
+
             if (!canPlace) continue
 
+            if (chosenStructure.element.element_type == "minecraft:list_pool_element" && structuresToPlace.length > 1) {
+                for (const structure of structuresToPlace) {
+                    const nextStructureBounds: Bounds = {
+                        start: possiblePlacement.bounds.start,
+                        size: parseSize(structure)
+                    }
+
+                    if (!boundsIntersect(possiblePlacement.bounds, nextStructureBounds) || boundsFit(nextStructureBounds, possiblePlacement.bounds)) continue
+
+                    canPlace = false
+
+                    break
+                }
+            }
+
+            if (!canPlace) break
+
             validPlacements.push({
-                name: chosenStructureSubElement.location,
+                structures: structuresToPlace,
                 position: possiblePlacement.position,
                 rotation: possiblePlacement.targetRotation,
                 bounds: possiblePlacement.bounds,
@@ -346,8 +415,13 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
             continue
         }
 
+
         return validPlacements[Math.floor(Math.random() * validPlacements.length)]
     }
+    //} catch (err) {
+    // console.warn(err)
+    //return null
+    //  }
 
     return null
 }
