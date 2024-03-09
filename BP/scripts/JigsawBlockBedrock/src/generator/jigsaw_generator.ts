@@ -38,7 +38,7 @@ world.afterEvents.entityLoad.subscribe(async event => {
     }, 3)
 })
 
-async function generate(source: Entity) {
+export async function generate(source: Entity) {
     const position: Vector3 = {
         x: Math.floor(source.location.x),
         y: Math.floor(source.location.y),
@@ -73,8 +73,6 @@ async function generate(source: Entity) {
     }
 
     const maxLevels: number = data.levels
-
-    world.sendMessage(`${maxLevels}`)
 
     if (data.level >= maxLevels) {
         if (targetPool.fallback == undefined) {

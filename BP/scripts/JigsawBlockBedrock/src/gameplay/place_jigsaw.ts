@@ -2,6 +2,7 @@ import { system, world, Player, Vector3, Structure, StructureRotation } from "@m
 import { getTemplatePool, elementWeightedRandom } from '../util/template_pool_utils'
 import { parseSize, addPlacedBounds } from '../util/jigsaw_generator_utils'
 import { placeStructureAndGetEntities } from '../generator/jigsaw_smart_queue'
+import { generate } from '../generator/jigsaw_generator'
 import { TemplatePool, TemplatePoolElement, EmptyPoolElement, SinglePoolElement, ListPoolElement } from '../types'
 
 system.afterEvents.scriptEventReceive.subscribe(async scriptEvent => {

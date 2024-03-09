@@ -1,6 +1,7 @@
 import { world, system, Dimension, Entity } from "@minecraft/server"
 import { ModalFormData } from "@minecraft/server-ui"
 import { JigsawBlockData } from "../types"
+import { generate } from "../generator/jigsaw_generator"
 
 let hasOpened: any = []
 
@@ -43,7 +44,7 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
 
     system.run(() => {
         jigsawForm.show(jigsawInteract.player).then(formData => {
-            let generate: boolean = false
+            let shouldGenerate: boolean = false
             let index = hasOpened.indexOf(playerOpenData)
 
             hasOpened.slice(index, 1)
@@ -59,20 +60,18 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
                 if (formData.formValues[4] === 0) jigsawData.jointType = "rollable"
                 else jigsawData.jointType = "aligned"
 
-                generate = formData.formValues[5] as boolean
+                shouldGenerate = formData.formValues[5] as boolean
 
                 jigsawData.levels = formData.formValues[6] as number
             }
             else {
-                generate = formData.formValues[4] as boolean
-
-                jigsawData.levels = formData.formValues[5] as number
+                shouldGenerate = formData.formValues[4] as boolean
             }
 
             dataEntity.setDynamicProperty("jigsawData", JSON.stringify(jigsawData, null, 4))
 
-            if (generate) {
-                dataEntity.runCommand(`scriptevent jigsaw:place ${jigsawData.targetPool}`)
+            if (shouldGenerate) {
+                generate(dataEntity)
             }
         })
     })
