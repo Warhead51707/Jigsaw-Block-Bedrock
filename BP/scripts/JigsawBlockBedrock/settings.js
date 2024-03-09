@@ -1,3 +1,3 @@
 export const settings = {
-    jigsawMaxLevels: 20
+    jigsawMaxLevels: 21
 }

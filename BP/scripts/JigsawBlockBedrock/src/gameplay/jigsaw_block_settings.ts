@@ -41,7 +41,10 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
     }
 
     jigsawForm.toggle("Generate", false)
-    jigsawForm.slider("Levels", 0, settings.jigsawMaxLevels + 1, 1, 7)
+
+    const incrementAmount = Math.ceil(settings.jigsawMaxLevels / 20) == 0 ? 1 : Math.ceil(settings.jigsawMaxLevels / 20)
+
+    jigsawForm.slider("Levels", 0, settings.jigsawMaxLevels, incrementAmount, 7)
 
     system.run(() => {
         jigsawForm.show(jigsawInteract.player).then(formData => {
