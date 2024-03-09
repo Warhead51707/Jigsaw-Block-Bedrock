@@ -1,20 +1,29 @@
 import { world } from '@minecraft/server'
-import { templatePools } from '../../datapack/template_pools'
 import { TemplatePool, SinglePoolElement, EmptyPoolElement, ListPoolElement, TemplatePoolElement, TemplatePoolSubElement } from '../types'
 import { weightedRandom } from '../util/jigsaw_math'
 
 
-export function getTemplatePool(id: string): TemplatePool | null {
+export async function getTemplatePool(id: string): Promise<TemplatePool | null> {
     if (id == "minecraft:empty") return null
 
-    const foundTemplatePool: TemplatePool | undefined = templatePools.find(pool => pool.id == id)
+    let foundTemplatePool: TemplatePool | undefined
+
+    try {
+        const foundTemplatePoolModule = await import(`../../datapack/template_pool/${id.split(":")[0]}/${id.split(":")[1]}`)
+
+        foundTemplatePool = foundTemplatePoolModule.default
+    } catch (err) {
+        console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Could not file target pool file '${id}'`)
+        console.warn(err)
+        return null
+    }
 
     if (foundTemplatePool == undefined) {
         console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Jigsaw contains bad target pool '${id}`)
         return null
     }
 
-    const fallbackTemplatePool: TemplatePool | undefined = templatePools.find(pool => pool.id == foundTemplatePool.fallback)
+    const fallbackTemplatePool: TemplatePool | undefined = await getTemplatePool(foundTemplatePool.fallback)
 
     if ((fallbackTemplatePool == undefined || foundTemplatePool.fallback == undefined || typeof foundTemplatePool.fallback != 'string') && foundTemplatePool.fallback != "minecraft:empty") {
         console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${foundTemplatePool.id}' contains a non-existant fallback pool '${foundTemplatePool.fallback}`)

@@ -1,16 +1,15 @@
 import { system, world, Player, Vector3, Structure, StructureRotation } from "@minecraft/server"
-import { templatePools } from '../../datapack/template_pools'
 import { getTemplatePool, elementWeightedRandom } from '../util/template_pool_utils'
 import { parseSize, addPlacedBounds } from '../util/jigsaw_generator_utils'
 import { placeStructureAndGetEntities } from '../generator/jigsaw_smart_queue'
 import { TemplatePool, TemplatePoolElement, EmptyPoolElement, SinglePoolElement, ListPoolElement } from '../types'
 
-system.afterEvents.scriptEventReceive.subscribe(scriptEvent => {
+system.afterEvents.scriptEventReceive.subscribe(async scriptEvent => {
     if (scriptEvent.id != "jigsaw:place") return
 
     const args: string[] = scriptEvent.message.split(" ")
 
-    let foundTemplatePool: TemplatePool | null = getTemplatePool(args[0])
+    let foundTemplatePool: TemplatePool | null = await getTemplatePool(args[0])
 
     if (foundTemplatePool == null) {
         (scriptEvent.sourceEntity as Player).sendMessage(`Invalid template pool: ${args[0]}`)
@@ -44,5 +43,5 @@ system.afterEvents.scriptEventReceive.subscribe(scriptEvent => {
 
     addPlacedBounds(bounds)
 
-    world.structureManager.place(structure.id, scriptEvent.sourceEntity.dimension, scriptEvent.sourceEntity.location)
+    scriptEvent.sourceEntity.dimension.runCommand(`structure load "${structure.id}" ${scriptEvent.sourceEntity.location.x} ${scriptEvent.sourceEntity.location.y} ${scriptEvent.sourceEntity.location.z} 0_degrees`)
 })

@@ -48,10 +48,19 @@ export function unlockBoundsMutex(request: MutexRequest) {
 export async function placeStructureAndGetEntities(structure: Structure, position: Vector3, rotation: StructureRotation, onlyEntities: boolean, bounds: Bounds, dimension: Dimension): Promise<Entity[]> {
     const existingEntityIds = dimension.getEntities().map(entity => entity.id)
 
-    world.structureManager.place(structure.id, dimension, position, {
-        rotation: rotation,
-        includeEntities: !onlyEntities
-    })
+    //world.structureManager.place(structure.id, dimension, position, {
+    // rotation: rotation,
+    // includeEntities: !onlyEntities
+    // })
+
+    let tempRotation: string
+
+    if (rotation == StructureRotation.None) tempRotation = "0_degrees"
+    if (rotation == StructureRotation.Rotate180) tempRotation = "180_degrees"
+    if (rotation == StructureRotation.Rotate270) tempRotation = "270_degrees"
+    if (rotation == StructureRotation.Rotate90) tempRotation = "90_degrees"
+
+    await dimension.runCommand(`structure load "${structure.id}" ${position.x} ${position.y} ${position.z} ${tempRotation} none true ${!onlyEntities}`)
 
     await waitTick()
     await waitTickFast()

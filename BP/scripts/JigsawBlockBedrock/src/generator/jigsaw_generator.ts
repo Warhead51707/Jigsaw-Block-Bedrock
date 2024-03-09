@@ -1,6 +1,5 @@
 import { world, Dimension, Entity, Block, Vector3, system, Structure, StructureRotation } from '@minecraft/server'
 import { JigsawBlockData, TemplatePool, TemplatePoolElement, PlacementResult, Bounds, StructureBranches, SinglePoolElement, EmptyPoolElement, ListPoolElement, TemplatePoolSubElement } from '../types'
-import { templatePools } from '../../datapack/template_pools'
 import { weightedRandom, boundsIntersect, boundsFit, randomMinMax, boundsFitsSmaller } from '../util/jigsaw_math'
 import { parseSize, getPlacedBounds, addPlacedBounds, PossiblePlacements, shuffle } from '../util/jigsaw_generator_utils'
 import { placeStructureAndGetEntities, lockBoundsMutex, unlockBoundsMutex, MutexRequest } from './jigsaw_smart_queue'
@@ -65,7 +64,7 @@ async function generate(source: Entity) {
         return
     }
 
-    let targetPool: TemplatePool = getTemplatePool(data.targetPool)
+    let targetPool: TemplatePool = await getTemplatePool(data.targetPool)
 
     if (targetPool == null || targetPool == undefined) {
         block.setType(data.turnsInto)
@@ -73,16 +72,18 @@ async function generate(source: Entity) {
         return
     }
 
-    const targetPoolLevels: number = targetPool.levels == undefined ? 20 : targetPool.levels
+    const maxLevels: number = data.levels
 
-    if (data.level >= targetPoolLevels) {
+    world.sendMessage(`${maxLevels}`)
+
+    if (data.level >= maxLevels) {
         if (targetPool.fallback == undefined) {
             block.setType(data.turnsInto)
 
             return
         }
 
-        targetPool = getTemplatePool(targetPool.fallback)
+        targetPool = await getTemplatePool(targetPool.fallback)
 
         if (targetPool == undefined) {
             block.setType(data.turnsInto)
@@ -109,7 +110,7 @@ async function generate(source: Entity) {
         const branchData: JigsawBlockData = JSON.parse(branchEntity.getDynamicProperty('jigsawData') as string)
 
         branchData.branch = true
-        branchData.levels = targetPoolLevels
+        branchData.levels = maxLevels
         branchData.level = data.level + 1
 
         branchEntity.setDynamicProperty('jigsawData', JSON.stringify(branchData))
@@ -147,7 +148,7 @@ async function generate(source: Entity) {
 }
 
 export async function getPlacement(position: Vector3, dimension: Dimension, data: JigsawBlockData, targetPool: TemplatePool): Promise<PlacementResult | null> {
-    // try {
+    //try {
     const targetPoolElements: TemplatePoolElement[] = JSON.parse(JSON.stringify(targetPool.elements))
 
     while (targetPoolElements.length > 0) {
@@ -168,7 +169,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
         if (chosenElement.element.element_type == "minecraft:list_pool_element") {
             for (const element of (chosenElement.element as ListPoolElement).elements) {
-                const structure: Structure = world.structureManager.get((chosenElement.element as EmptyPoolElement & SinglePoolElement).location)
+                const structure: Structure = world.structureManager.get((element as EmptyPoolElement & SinglePoolElement).location)
                 structuresToPlace.push(structure)
             }
         }
@@ -354,7 +355,6 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 targetRotation
             })
         }
-
         const validPlacements: PlacementResult[] = []
 
         const mutex = await lockBoundsMutex(possiblePlacements.map(placement => placement.bounds))
@@ -420,6 +420,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
             })
 
             break
+
         }
 
         if (validPlacements.length === 0) {
@@ -430,20 +431,22 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
 
         return validPlacements[Math.floor(Math.random() * validPlacements.length)]
+
     }
 
     if (targetPool.fallback == undefined) return null
 
-    const fallbackPool = getTemplatePool(targetPool.fallback)
+    const fallbackPool = await getTemplatePool(targetPool.fallback)
 
     if (fallbackPool == undefined) return null
 
-    //} catch (err) {
-    // console.warn(err)
-    //return null
-    //  }
-
     return await getPlacement(position, dimension, data, fallbackPool)
+
+    //} catch (err) {
+    //return null
+    // }
+
+
 }
 
 async function getBranches(name: string, position: Vector3, bounds: Bounds, dimension): Promise<StructureBranches> {
