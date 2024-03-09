@@ -74,6 +74,8 @@ export async function generate(source: Entity) {
 
     const maxLevels: number = data.levels
 
+    world.sendMessage(`${data.levels}`)
+
     if (data.level >= maxLevels) {
         if (targetPool.fallback == undefined) {
             block.setType(data.turnsInto)

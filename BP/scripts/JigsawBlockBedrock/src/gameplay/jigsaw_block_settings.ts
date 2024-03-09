@@ -2,6 +2,7 @@ import { world, system, Dimension, Entity } from "@minecraft/server"
 import { ModalFormData } from "@minecraft/server-ui"
 import { JigsawBlockData } from "../types"
 import { generate } from "../generator/jigsaw_generator"
+import { settings } from "../../settings"
 
 let hasOpened: any = []
 
@@ -39,8 +40,8 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
         jigsawForm.dropdown("Joint type:", ["rollable", "aligned"], jigsawData.jointType == "rollable" ? 0 : 1)
     }
 
-    jigsawForm.toggle("Generate")
-    jigsawForm.slider("Levels", 0, 20, 1, 7)
+    jigsawForm.toggle("Generate", false)
+    jigsawForm.slider("Levels", 0, settings.jigsawMaxLevels + 1, 1, 7)
 
     system.run(() => {
         jigsawForm.show(jigsawInteract.player).then(formData => {
@@ -62,17 +63,18 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
 
                 shouldGenerate = formData.formValues[5] as boolean
 
-                jigsawData.levels = formData.formValues[6] as number
+                if (shouldGenerate) jigsawData.levels = formData.formValues[6] as number
             }
             else {
                 shouldGenerate = formData.formValues[4] as boolean
+
+                if (shouldGenerate) jigsawData.levels = formData.formValues[5] as number
             }
+
 
             dataEntity.setDynamicProperty("jigsawData", JSON.stringify(jigsawData, null, 4))
 
-            if (shouldGenerate) {
-                generate(dataEntity)
-            }
+            if (shouldGenerate) generate(dataEntity)
         })
     })
 })

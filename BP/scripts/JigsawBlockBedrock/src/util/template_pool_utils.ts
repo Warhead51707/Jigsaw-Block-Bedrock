@@ -2,20 +2,28 @@ import { world } from '@minecraft/server'
 import { TemplatePool, SinglePoolElement, EmptyPoolElement, ListPoolElement, TemplatePoolElement, TemplatePoolSubElement } from '../types'
 import { weightedRandom } from '../util/jigsaw_math'
 
+const templatePoolCache: TemplatePool[] = []
 
 export async function getTemplatePool(id: string): Promise<TemplatePool | null> {
     if (id == "minecraft:empty") return null
 
     let foundTemplatePool: TemplatePool | undefined
 
-    try {
-        const foundTemplatePoolModule = await import(`../../datapack/template_pool/${id.split(":")[0]}/${id.split(":")[1]}`)
+    let cachedPool: TemplatePool | undefined = templatePoolCache.find(pool => pool.id == id)
 
-        foundTemplatePool = foundTemplatePoolModule.default
-    } catch (err) {
-        console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Could not file target pool file '${id}'`)
-        console.warn(err)
-        return null
+    if (cachedPool == undefined) {
+        try {
+            const foundTemplatePoolModule = await import(`../../datapack/template_pool/${id.split(":")[0]}/${id.split(":")[1]}`)
+
+            foundTemplatePool = foundTemplatePoolModule.default
+            templatePoolCache.push(foundTemplatePool)
+        } catch (err) {
+            console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Could not file target pool file '${id}'`)
+            console.warn(err)
+            return null
+        }
+    } else {
+        foundTemplatePool = cachedPool
     }
 
     if (foundTemplatePool == undefined) {
