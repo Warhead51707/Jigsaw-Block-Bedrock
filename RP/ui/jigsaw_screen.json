@@ -1,56 +1,49 @@
 {
 	"namespace": "kekecreations_jigsaw",
-	"jigsaw_panel": {
-		"type": "panel",
-		"size": [
-			525,
-			275
-		],
-		"controls": [
-			{
-				"scroll_panel@common.scrolling_panel": {
-					"anchor_to": "top_left",
-					"anchor_from": "top_left",
-					"$show_background": true,
-					"size": [
-						"65%",
-						"65%"
-					],
-					"$scrolling_content": "kekecreations_jigsaw.jigsaw_scrolling_content",
-					"$scroll_size": [
-						5,
-						"100% - 4px"
-					],
-					"$scrolling_pane_size": [
-						"95%",
-						"220%"
-					],
-					"$scrolling_pane_offset": [
-						"25%",
-						"5%"
-					],
-					"$scroll_bar_right_padding_size": [
-						0,
-						0
-					]
-				}
-			},
-			{
-				"background@common.screen_background": {
-					"size": [
-						"100%",
-						"100%"
-					]
-				}
-			}
-		]
-	},
 	"jigsaw_scrolling_content": {
 		"type": "stack_panel",
 		"orientation": "vertical",
 		"controls": [
 			{
 				"generated_form@kekecreations_jigsaw.generated_contents": {}
+			},
+			{
+				"toggle_and_slider": {
+					"type": "stack_panel",
+					"orientation": "horizontal",
+					"size": [
+						100,
+						"100%cm"
+					],
+					"controls": [
+						{
+							"panel_for_toggle_offset": {
+								"type": "stack_panel",
+								"orientation": "vertical",
+								"controls": [
+									{
+										"buffer": {
+											"type": "panel",
+											"size": [
+												0,
+												12
+											]
+										}
+									},
+									{
+										"generated_toggle@kekecreations_jigsaw.generated_toggle": {}
+									}
+								]
+							}
+						},
+						{
+							"buffer@kekecreations_jigsaw.horizontal_buffer": {}
+						},
+						{
+							"generated_slider@kekecreations_jigsaw.generated_slider": {}
+						}
+					]
+				}
 			},
 			{
 				"menu_buffer@kekecreations_jigsaw.vertical_buffer": {}
@@ -115,11 +108,46 @@
 			"name": "buttons",
 			"control_ids": {
 				"label": "@server_form.custom_label",
-				"toggle": "@server_form.custom_toggle",
-				"slider": "@server_form.custom_slider",
 				"step_slider": "@server_form.custom_step_slider",
 				"dropdown": "@kekecreations_jigsaw.jigsaw_dropdown",
 				"input": "@kekecreations_jigsaw.jigsaw_input"
+			}
+		},
+		"collection_name": "custom_form",
+		"bindings": [
+			{
+				"binding_name": "#custom_form_length",
+				"binding_name_override": "#collection_length"
+			}
+		]
+	},
+	"generated_toggle": {
+		"type": "stack_panel",
+		"orientation": "vertical",
+		"factory": {
+			"name": "buttons",
+			"control_ids": {
+				"toggle": "@server_form.custom_toggle"
+			}
+		},
+		"collection_name": "custom_form",
+		"bindings": [
+			{
+				"binding_name": "#custom_form_length",
+				"binding_name_override": "#collection_length"
+			}
+		]
+	},
+	"generated_slider": {
+		"type": "stack_panel",
+		"size": [
+			185,
+			30
+		],
+		"factory": {
+			"name": "buttons",
+			"control_ids": {
+				"slider": "@server_form.custom_slider"
 			}
 		},
 		"collection_name": "custom_form",
@@ -246,7 +274,14 @@
 		"type": "panel",
 		"size": [
 			0,
-			18
+			15
+		]
+	},
+	"horizontal_buffer": {
+		"type": "panel",
+		"size": [
+			10,
+			0
 		]
 	},
 	"jigsaw_screen@common.base_screen": {
