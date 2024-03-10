@@ -33,6 +33,11 @@ world.afterEvents.entityLoad.subscribe(async event => {
                 if (playerPlaced.x == block.location.x && playerPlaced.y == block.location.y && playerPlaced.z == block.location.z) return
             }
 
+            if (data.level == 0) {
+                block.setType(data.turnsInto)
+                return
+            }
+
             generate(event.entity)
         } catch { }
     }, 3)
@@ -72,9 +77,7 @@ export async function generate(source: Entity) {
         return
     }
 
-    const maxLevels: number = data.levels
-
-    world.sendMessage(`${data.levels}`)
+    const maxLevels: number = Math.floor(data.levels)
 
     if (data.level >= maxLevels) {
         if (targetPool.fallback == undefined) {
@@ -184,6 +187,8 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
         const branches = await getBranches(structuresToPlace[0].id, position, bounds, dimension)
 
         const possibleBranches = shuffle(branches.filter(branch => branch.data.name === data.targetName)) as StructureBranches
+
+        if (dimension.getBlock(position) == undefined) return null
 
         const sourceBlockFace = dimension.getBlock(position).permutation.getState('minecraft:block_face')
         const sourceCardinalDirection = dimension.getBlock(position).permutation.getState('minecraft:cardinal_direction')

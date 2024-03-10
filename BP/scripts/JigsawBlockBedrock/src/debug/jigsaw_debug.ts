@@ -1,18 +1,6 @@
 import { world, system } from '@minecraft/server'
 import { getPlacedBounds } from '../util/jigsaw_generator_utils'
 
-
-//State Debugger
-world.afterEvents.playerPlaceBlock.subscribe(event => {
-    const block = event.block
-    const player = event.player
-
-    if (player.hasTag('debug') && block.typeId == 'jigsaw:jigsaw_block') {
-        const states = block.permutation.getAllStates()
-        player.sendMessage(JSON.stringify(states, null, 4))
-    }
-})
-
 //Debug Commands
 world.beforeEvents.chatSend.subscribe(event => {
     if (!event.sender.isOp) return
@@ -34,12 +22,11 @@ world.beforeEvents.chatSend.subscribe(event => {
     }
 })
 
-
 //Structure Bounds Debug
 world.afterEvents.worldInitialize.subscribe(event => {
     system.runInterval(() => {
         for (const player of world.getAllPlayers()) {
-            if (!player.getTags().includes('debug')) continue
+            if (!player.getTags().includes('jigsaw:debug')) continue
 
             let boundingBoxes = getPlacedBounds()
 
