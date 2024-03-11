@@ -19,15 +19,15 @@ Jigsaw Block Bedrock offers many of the same features as Java Edition's Jigsaw b
 
 Currently, the library is packed with, 
 
-- Accurate (90%) port of Java edition's Jigsaw system, including Template Pools
+- Accurate (95%) port of Java edition's Jigsaw system, including Template Pools
 - Automatic structure rotation and offset adjustment
 - Automatic structure collision detection
 - Built with map makers in mind, easy to use macro/"pick block" system
 - Compatible with any Add-On
-- Preview support (coming soon)
-- Simple Jigsaw UI 
+- Preview support
+- Jigsaw UI 
 - Multiple test structures & examples
-- Node JS automatic install script
+- Node JS automatic install script/optional exe
 
 # ❗ Where can I get help/track the project?
 If you're experiencing trouble or want to share what you're working on, we encourage you to join our [discord server]() or make an [issue here on Github](https://github.com/Warhead51707/Jigsaw-Block-Bedrock/issues).
@@ -48,5 +48,6 @@ KekeCreations
 Vitroflare
 Anthrax101
 Chikorita Lover
+ExDrill
 
 for making this project possible.
