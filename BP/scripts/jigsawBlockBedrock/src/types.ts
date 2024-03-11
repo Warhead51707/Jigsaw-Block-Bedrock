@@ -1,18 +1,6 @@
 import { Vector3, StructureRotation, Structure } from "@minecraft/server"
 import { MutexRequest } from './generator/jigsaw_smart_queue.js'
 
-export type JigsawMacroData = {
-    macroEnabled: boolean,
-    macroOwner: string,
-    targetPool: string,
-    name: string,
-    targetName: string,
-    turnsInto: string,
-    jointType: "rollable" | "aligned",
-    selectionPriority: number,
-    placementPriority: number
-}
-
 export type JigsawBlockData = {
     targetPool: string,
     name: string,
@@ -26,7 +14,7 @@ export type JigsawBlockData = {
 
     cardinalDirection: string,
     blockFace: string,
-
+    
     branch: boolean,
 }
 
