@@ -1,5 +1,5 @@
 import { world, system, Dimension, Entity, Vector3 } from "@minecraft/server"
-import { JigsawBlockData, JigsawMacroData } from "../types"
+import { JigsawBlockData  } from "../types"
 import { getMacro, isMacroEnabled } from "../util/macro_utils"
 
 world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
