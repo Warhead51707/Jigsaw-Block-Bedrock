@@ -8,7 +8,9 @@ export type JigsawMacroData = {
     name: string,
     targetName: string,
     turnsInto: string,
-    jointType: "rollable" | "aligned"
+    jointType: "rollable" | "aligned",
+    selectionPriority: number,
+    placementPriority: number
 }
 
 export type JigsawBlockData = {
@@ -16,6 +18,8 @@ export type JigsawBlockData = {
     name: string,
     targetName: string,
     turnsInto: string,
+    selectionPriority: number,
+    placementPriority: number,
     jointType: "rollable" | "aligned",
     levels: number,
     level: number,
@@ -62,6 +66,7 @@ export interface Bounds {
 
 export interface PlacementResult {
     structures: Structure[],
+    selectionPriority: number,
     position: Vector3,
     rotation: StructureRotation,
     bounds: Bounds

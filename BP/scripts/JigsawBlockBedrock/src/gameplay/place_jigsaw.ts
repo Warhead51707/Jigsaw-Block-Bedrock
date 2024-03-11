@@ -104,6 +104,8 @@ system.afterEvents.scriptEventReceive.subscribe(async scriptEvent => {
 
         const branchData: JigsawBlockData = JSON.parse(branchEntity.getDynamicProperty('jigsawData') as string)
 
+        branchData.level = 1
+
         branchData.levels = maxLevels
 
         branchEntity.setDynamicProperty('jigsawData', JSON.stringify(branchData))

@@ -54,7 +54,9 @@ world.beforeEvents.chatSend.subscribe(chatMsg => {
             targetName: sourceJigsawEntityData.targetName,
             targetPool: sourceJigsawEntityData.targetPool,
             jointType: sourceJigsawEntityData.jointType,
-            turnsInto: sourceJigsawEntityData.turnsInto
+            turnsInto: sourceJigsawEntityData.turnsInto,
+            placementPriority: sourceJigsawEntityData.placementPriority,
+            selectionPriority: sourceJigsawEntityData.selectionPriority
         }
 
         // world.sendMessage(JSON.stringify(jigsawMacroData, null, 4))

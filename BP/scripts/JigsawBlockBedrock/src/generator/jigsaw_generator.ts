@@ -1,7 +1,7 @@
 import { world, Dimension, Entity, Block, Vector3, system, Structure, StructureRotation } from '@minecraft/server'
 import { JigsawBlockData, TemplatePool, TemplatePoolElement, PlacementResult, Bounds, StructureBranches, SinglePoolElement, EmptyPoolElement, ListPoolElement, TemplatePoolSubElement } from '../types'
 import { weightedRandom, boundsIntersect, boundsFit, randomMinMax, boundsFitsSmaller } from '../util/jigsaw_math'
-import { parseSize, getPlacedBounds, addPlacedBounds, PossiblePlacements, shuffle } from '../util/jigsaw_generator_utils'
+import { parseSize, getPlacedBounds, addPlacedBounds, PossiblePlacements, sortByPlacementPriority, sortBySelectionPriority, selectionPriorityExact } from '../util/jigsaw_generator_utils'
 import { placeStructureAndGetEntities, lockBoundsMutex, unlockBoundsMutex, MutexRequest } from './jigsaw_smart_queue'
 import { getTemplatePool, elementWeightedRandom } from '../util/template_pool_utils'
 
@@ -107,7 +107,7 @@ export async function generate(source: Entity) {
 
     const branchEntities = await placeStructureAndGetEntities(placementStructure, placement.position, placement.rotation, false, placement.bounds, dimension)
 
-    for (const branchEntity of shuffle(branchEntities) as Entity[]) {
+    for (const branchEntity of sortByPlacementPriority(branchEntities) as Entity[]) {
         if (branchEntity.typeId !== 'jigsaw:jigsaw_data') continue
 
         const branchData: JigsawBlockData = JSON.parse(branchEntity.getDynamicProperty('jigsawData') as string)
@@ -186,7 +186,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
         const branches = await getBranches(structuresToPlace[0].id, position, bounds, dimension)
 
-        const possibleBranches = shuffle(branches.filter(branch => branch.data.name === data.targetName)) as StructureBranches
+        const possibleBranches = branches.filter(branch => branch.data.name === data.targetName)
 
         if (dimension.getBlock(position) == undefined) return null
 
@@ -355,6 +355,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
             possiblePlacements.push({
                 position: placementPosition,
+                selectionPriority: branch.data.selectionPriority,
                 bounds: placementBounds,
                 sourceOffset,
                 targetRotation
@@ -364,7 +365,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
         const mutex = await lockBoundsMutex(possiblePlacements.map(placement => placement.bounds))
 
-        for (const possiblePlacement of possiblePlacements) {
+        for (const possiblePlacement of sortBySelectionPriority(possiblePlacements)) {
 
 
             const placedBounds = getPlacedBounds()
@@ -413,6 +414,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
             validPlacements.push({
                 structures: structuresToPlace,
+                selectionPriority: possiblePlacement.selectionPriority,
                 position: possiblePlacement.position,
                 rotation: possiblePlacement.targetRotation,
                 bounds: possiblePlacement.bounds,
@@ -434,8 +436,9 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
             continue
         }
 
+        if (selectionPriorityExact(validPlacements)) return validPlacements[Math.floor(Math.random() * validPlacements.length)]
 
-        return validPlacements[Math.floor(Math.random() * validPlacements.length)]
+        return validPlacements[0]
 
     }
 

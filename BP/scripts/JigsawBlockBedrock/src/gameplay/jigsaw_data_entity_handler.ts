@@ -34,7 +34,9 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         name: "minecraft:empty",
         targetName: "minecraft:empty",
         turnsInto: "minecraft:air",
-        jointType: "rollable"
+        jointType: "rollable",
+        placementPriority: 0,
+        selectionPriority: 0
     }
 
     const macroData: JigsawMacroData[] = getMacroData()
@@ -54,6 +56,8 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
         targetName: jigsawMacroData.targetName,
         turnsInto: jigsawMacroData.turnsInto,
         jointType: jigsawMacroData.jointType,
+        placementPriority: jigsawMacroData.placementPriority,
+        selectionPriority: jigsawMacroData.selectionPriority,
         levels: 20,
         level: 0,
         cardinalDirection: placeJigsaw.block.permutation.getState("minecraft:cardinal_direction") as string,
