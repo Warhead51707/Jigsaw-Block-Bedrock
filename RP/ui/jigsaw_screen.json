@@ -181,7 +181,7 @@
 	"option_text_edit_control@common.text_edit_box": {
 		"$option_text_edit_control_size|default": [
 			"100%",
-			"22px"
+			"20px"
 		],
 		"size": "$option_text_edit_control_size",
 		"max_length": "$max_text_edit_length",
@@ -290,15 +290,15 @@
 	},
 	"background@common.screen_background": {
 		"size": [
-			5000,
-			5000
+			"100%",
+			"100%"
 		]
 	},
 	"scroll_panel@common.scrolling_panel": {
 		"$show_background": false,
 		"size": [
-			500,
-			275
+			"100%",
+			"100%"
 		],
 		"$scrolling_content": "kekecreations_jigsaw.jigsaw_scrolling_content",
 		"$scroll_size": [
@@ -306,19 +306,23 @@
 			"100% - 4px"
 		],
 		"$scrolling_pane_size": [
-			"60%",
-			"220%"
+			"65%",
+			"100%"
 		],
 		"$scroll_bar_right_padding_size": [
 			0,
 			0
+		],
+		"$scrolling_pane_offset": [
+			85,
+			12
 		]
 	},
 	"jigsaw_screen_content": {
 		"type": "stack_panel",
 		"size": [
-			300,
-			250
+			"100%",
+			"100%"
 		],
 		"controls": [
 			{

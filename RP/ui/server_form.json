@@ -13,8 +13,8 @@
 	"main_screen_content": {
 		"type": "panel",
 		"size": [
-			0,
-			0
+			"100%",
+			"100%"
 		],
 		"controls": [
 			{
