@@ -76,7 +76,7 @@ export async function generate(source: Entity) {
 
         return
     }
-
+  
     const maxLevels: number = Math.floor(data.levels)
 
     if (data.level >= maxLevels) {
@@ -85,7 +85,7 @@ export async function generate(source: Entity) {
 
             return
         }
-
+      
         targetPool = await getTemplatePool(targetPool.fallback)
 
         if (targetPool == undefined) {
@@ -151,7 +151,6 @@ export async function generate(source: Entity) {
 }
 
 export async function getPlacement(position: Vector3, dimension: Dimension, data: JigsawBlockData, targetPool: TemplatePool): Promise<PlacementResult | null> {
-    //try {
     const targetPoolElements: TemplatePoolElement[] = JSON.parse(JSON.stringify(targetPool.elements))
 
     while (targetPoolElements.length > 0) {
@@ -438,18 +437,12 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
     }
 
     if (targetPool.fallback == undefined) return null
-
+  
     const fallbackPool = await getTemplatePool(targetPool.fallback)
 
     if (fallbackPool == undefined) return null
 
     return await getPlacement(position, dimension, data, fallbackPool)
-
-    //} catch (err) {
-    //return null
-    // }
-
-
 }
 
 async function getBranches(name: string, position: Vector3, bounds: Bounds, dimension): Promise<StructureBranches> {

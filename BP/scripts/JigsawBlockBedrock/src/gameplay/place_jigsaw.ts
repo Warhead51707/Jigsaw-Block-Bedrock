@@ -83,7 +83,7 @@ system.afterEvents.scriptEventReceive.subscribe(async scriptEvent => {
     }
 
     if (chosenElement.element.element_type == "minecraft:empty_pool_element") return
-
+  
     const structure: Structure = world.structureManager.get(chosenStructure)
 
     const bounds = {
