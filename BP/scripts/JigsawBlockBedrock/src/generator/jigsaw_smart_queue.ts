@@ -1,4 +1,4 @@
-import { world, system, Dimension, Vector3, Entity } from "@minecraft/server"
+import { world, system, Dimension, Vector3, Entity, Structure, StructureRotation } from "@minecraft/server"
 import { Bounds } from "../types"
 import { boundsIntersect } from "../util/jigsaw_math"
 
@@ -45,10 +45,23 @@ export function unlockBoundsMutex(request: MutexRequest) {
     activeMutexes.splice(activeMutexes.indexOf(request), 1)
 }
 
-export async function placeStructureAndGetEntities(name: string, position: Vector3, rotation: string, onlyEntities: boolean, bounds: Bounds, dimension: Dimension): Promise<Entity[]> {
+export async function placeStructureAndGetEntities(structure: Structure, position: Vector3, rotation: StructureRotation, onlyEntities: boolean, bounds: Bounds, dimension: Dimension): Promise<Entity[]> {
     const existingEntityIds = dimension.getEntities().map(entity => entity.id)
 
-    await dimension.runCommand(`structure load "${name}" ${position.x} ${position.y} ${position.z} ${rotation} none true ${!onlyEntities}`)
+    //world.structureManager.place(structure.id, dimension, position, {
+    // rotation: rotation,
+    // includeEntities: !onlyEntities
+    // })
+
+    let tempRotation: string
+
+    if (rotation == StructureRotation.None) tempRotation = "0_degrees"
+    if (rotation == StructureRotation.Rotate180) tempRotation = "180_degrees"
+    if (rotation == StructureRotation.Rotate270) tempRotation = "270_degrees"
+    if (rotation == StructureRotation.Rotate90) tempRotation = "90_degrees"
+
+    await dimension.runCommand(`structure load "${structure.id}" ${position.x} ${position.y} ${position.z} ${tempRotation} none true ${!onlyEntities}`)
+
     await waitTick()
     await waitTickFast()
 

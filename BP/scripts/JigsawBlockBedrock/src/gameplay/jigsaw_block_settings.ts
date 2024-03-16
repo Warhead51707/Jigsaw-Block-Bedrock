@@ -1,21 +1,13 @@
 import { world, system, Dimension, Entity } from "@minecraft/server"
 import { ModalFormData } from "@minecraft/server-ui"
 import { JigsawBlockData } from "../types"
+import { generate } from "../generator/jigsaw_generator"
+import { settings } from "../../settings"
 
-let hasOpened: any = []
-
-world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
+world.afterEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
     if (jigsawInteract.block.typeId != "jigsaw:jigsaw_block") return
 
     if (jigsawInteract.player.isSneaking) return
-
-    const playerOpenData: any[] = hasOpened.find(openData => openData.id == jigsawInteract.player.id)
-
-    if (playerOpenData == undefined) {
-        hasOpened.push({
-            id: jigsawInteract.player.id
-        })
-    }
 
     const dimension: Dimension = jigsawInteract.player.dimension
     const dataEntity: Entity = dimension.getEntitiesAtBlockLocation(jigsawInteract.block.location)[0]
@@ -34,15 +26,22 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
     jigsawForm.textField("Target name:", "minecraft:empty", jigsawData.targetName)
     jigsawForm.textField("Turns into:", "minecraft:air", jigsawData.turnsInto)
 
+    jigsawForm.textField("Selection Priority", "0", jigsawData.selectionPriority.toString())
+    jigsawForm.textField("Placement Priority", "0", jigsawData.placementPriority.toString())
+
     if (jigsawData.blockFace === "up" || jigsawData.blockFace === "down") {
         jigsawForm.dropdown("Joint type:", ["rollable", "aligned"], jigsawData.jointType == "rollable" ? 0 : 1)
     }
 
+    jigsawForm.toggle("Generate", false)
+
+    const incrementAmount = Math.ceil(settings.jigsawMaxLevels / 20) == 0 ? 1 : Math.ceil(settings.jigsawMaxLevels / 20)
+
+    jigsawForm.slider("Levels", 0, settings.jigsawMaxLevels, incrementAmount, 7)
+
     system.run(() => {
         jigsawForm.show(jigsawInteract.player).then(formData => {
-            let index = hasOpened.indexOf(playerOpenData)
-
-            hasOpened.slice(index, 1)
+            let shouldGenerate: boolean = false
 
             if (formData.canceled) return
 
@@ -51,13 +50,36 @@ world.beforeEvents.playerInteractWithBlock.subscribe(jigsawInteract => {
             jigsawData.targetName = formData.formValues[2].toString()
             jigsawData.turnsInto = formData.formValues[3].toString()
 
+            let selectionPriority = parseInt(formData.formValues[4].toString())
+
+            if (isNaN(selectionPriority)) selectionPriority = 0
+
+            jigsawData.selectionPriority = selectionPriority
+
+            let placementPriority = parseInt(formData.formValues[5].toString())
+
+            if (isNaN(placementPriority)) placementPriority = 0
+
+            jigsawData.placementPriority = placementPriority
+
             if (jigsawData.blockFace === "up" || jigsawData.blockFace === "down") {
-                if (formData.formValues[4] === 0) jigsawData.jointType = "rollable"
+                if (formData.formValues[6] === 0) jigsawData.jointType = "rollable"
                 else jigsawData.jointType = "aligned"
+
+                shouldGenerate = formData.formValues[7] as boolean
+
+                if (shouldGenerate) jigsawData.levels = formData.formValues[7] as number
+            }
+            else {
+                shouldGenerate = formData.formValues[6] as boolean
+
+                if (shouldGenerate) jigsawData.levels = formData.formValues[7] as number
             }
 
 
             dataEntity.setDynamicProperty("jigsawData", JSON.stringify(jigsawData, null, 4))
+
+            if (shouldGenerate) generate(dataEntity)
         })
     })
 })

@@ -1,25 +1,33 @@
-import { world, Vector3 } from '@minecraft/server'
-import { Bounds } from '../types'
+import { world, Vector3, StructureRotation, Entity } from '@minecraft/server'
+import { Bounds, JigsawBlockData, StructureBranches } from '../types'
 
 
-export function shuffle(array) {
-    let currentIndex = array.length, randomIndex;
+export function sortByPlacementPriority(branchEntities: Entity[]): Entity[] {
+    return branchEntities.sort((a, b) => {
+        const aData: JigsawBlockData = JSON.parse(a.getDynamicProperty("jigsawData") as string)
+        const bData: JigsawBlockData = JSON.parse(b.getDynamicProperty("jigsawData") as string)
+        return bData.placementPriority - aData.placementPriority
+    })
+}
 
-    while (currentIndex > 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex], array[currentIndex]];
-    }
+export function sortBySelectionPriority(dataArray: any): any {
+    return dataArray.sort((a, b) => {
+        return b.selectionPriority - a.selectionPriority
+    })
+}
 
-    return array;
+export function selectionPriorityExact(dataArray: any): boolean {
+    const firstPriority = dataArray[0].selectionPriority
+
+    return dataArray.every((item: any) => item.selectionPriority === firstPriority)
 }
 
 export interface PossiblePlacements {
     position: Vector3,
+    selectionPriority: number,
     bounds: Bounds,
     sourceOffset: Vector3,
-    targetRotation: '0_degrees' | '90_degrees' | '180_degrees' | '270_degrees'
+    targetRotation: StructureRotation
 }
 
 export function parseSize(name: string): Vector3 {

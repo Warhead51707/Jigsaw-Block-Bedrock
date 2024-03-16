@@ -2,7 +2,7 @@
     "format_version": "1.20.80",
     "minecraft:entity": {
         "description": {
-            "identifier": "jigsaw:jigsaw_data",
+            "identifier": "jigsaw:jigsaw_loader",
             "is_summonable": true,
             "is_spawnable": false
         },
@@ -27,8 +27,18 @@
                 "is_pushable_by_piston": false
             },
             "minecraft:tick_world": {
-                "radius": 2,
+                "radius": 3,
                 "never_despawn": true
+            },
+            "minecraft:timer": {
+                "looping": false,
+                "time": [
+                    0.1,
+                    0.1
+                ],
+                "time_down_event": {
+                    "event": "jigsaw:despawn"
+                }
             }
         },
         "events": {

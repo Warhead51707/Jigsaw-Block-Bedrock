@@ -15,11 +15,11 @@
 	},
 	"header": {
 		"name": "§dJigsaw Block Bedrock§r (RP)",
-		"description": "Resources for Jigsaw Block Bedrock\n\nMade by Warhead!\nContributors: OuterCloud, KekeCreations, Anthrax101, Vitroflare, Chikorita Lover",
+		"description": "Resources for Jigsaw Block Bedrock\n\nMade by Warhead!\nContributors: OuterCloud, KekeCreations, Anthrax101, Vitroflare, Chikorita Lover, ExDrill",
 		"min_engine_version": [
 			1,
 			20,
-			60
+			80
 		],
 		"uuid": "cd6901b7-b8d5-4fe7-8708-e51713cb2ffc",
 		"version": [
