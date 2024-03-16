@@ -120,7 +120,7 @@ function singlePoolChecks(element: EmptyPoolElement & SinglePoolElement, templat
     const processors: string | undefined = element.processors
     const location: string | undefined = element.location
 
-    if (projection == undefined || typeof projection != "string" || projection != "rigid") {
+    if (projection == undefined || typeof projection != "string" || (projection != "rigid" && projection != "terrain_matching")) {
         console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${templatePool.id}' contains a single pool element with invalid projection value`)
         return null
     }

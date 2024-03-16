@@ -367,9 +367,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
         for (const possiblePlacement of sortBySelectionPriority(possiblePlacements)) {
 
-
             const placedBounds = getPlacedBounds()
-
 
             const jigsawBounds: Bounds = {
                 size: {
@@ -380,8 +378,6 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                 start: position
             }
 
-
-
             let canPlace = true
             for (const otherBounds of placedBounds) {
                 if (!boundsIntersect(possiblePlacement.bounds, otherBounds) || (boundsFitsSmaller(possiblePlacement.bounds, otherBounds) && boundsFit(jigsawBounds, otherBounds))) continue
@@ -390,8 +386,6 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
                 break
             }
-
-
 
             if (!canPlace) continue
 
@@ -435,6 +429,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
             continue
         }
+
 
         if (selectionPriorityExact(validPlacements)) return validPlacements[Math.floor(Math.random() * validPlacements.length)]
 

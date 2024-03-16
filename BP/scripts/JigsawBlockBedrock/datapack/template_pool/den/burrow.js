@@ -2,20 +2,20 @@ const templatePool = {
     fallback: "minecraft:empty",
     elements: [
         {
-            weight: 2,
+            weight: 65,
             element: {
                 element_type: "minecraft:single_pool_element",
                 projection: "rigid",
-                location: "jigsaw:tests/castle/walls/side_wall",
+                location: "jigsaw:tests/den/burrow/burrow_stairs",
                 processors: "minecraft:empty"
             }
         },
         {
-            weight: 1,
+            weight: 35,
             element: {
                 element_type: "minecraft:single_pool_element",
                 projection: "rigid",
-                location: "jigsaw:tests/castle/walls/corner_1",
+                location: "jigsaw:tests/den/burrow/burrow_hall",
                 processors: "minecraft:empty"
             }
         }

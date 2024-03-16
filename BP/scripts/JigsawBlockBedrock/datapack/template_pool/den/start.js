@@ -6,7 +6,7 @@ const templatePool = {
             element: {
                 element_type: "minecraft:single_pool_element",
                 projection: "rigid",
-                location: "jigsaw:tests/castle/walls/corner_2",
+                location: "jigsaw:tests/den/burrow/burrow_start",
                 processors: "minecraft:empty"
             }
         }
