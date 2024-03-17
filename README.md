@@ -6,7 +6,7 @@
 # ❓ What is this?
 This project aims to port the Jigsaw block from Java edition into Bedrock. The current system we have for Bedrock is very powerful on its own and reflects a VERY large portion of the Java system. Please keep in mind that not all features from the Java system are available for Bedrock, this includes terrain matching, processor lists, and feature type. **I plan to add all of these features with future updates!** 
 
-If you are not familiar with the Jigsaw block, I highly suggest you take the time to read this [wiki page](https://minecraft.fandom.com/wiki/Jigsaw_Block).
+If you are not familiar with the Jigsaw block, I highly suggest you take the time to read this [wiki page](https://minecraft.wiki/w/Jigsaw_Block).
 
 ![alt text](https://i.imgur.com/qiZ5tzS.png)
 
