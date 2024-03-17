@@ -10,6 +10,10 @@ This project aims to port the Jigsaw block from Java edition into Bedrock. The c
 
 If you are not familiar with the Jigsaw block, I highly suggest you take the time to read this [wiki page](https://minecraft.wiki/w/Jigsaw_Block).
 
+Currently, we are a Minecraft Preview exclusive. Once the Structure API features come to stable we will be releasing a stable version.
+
+**PLEASE ENABLE HOLIDAY CREATOR FEATURES AND BETA API**
+
 ![alt text](https://i.imgur.com/qiZ5tzS.png)
 
 # 🧩 What can I make with the library right now?
