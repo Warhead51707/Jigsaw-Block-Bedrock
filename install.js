@@ -14,7 +14,7 @@ const user = {
     update: false
 }
 
-readline.question("Please enter the path to your project's behavior pack: ", userBehPackPath => {
+readline.question("Please enter the full path to your project's behavior pack: ", userBehPackPath => {
     if (!fs.existsSync(userBehPackPath)) {
         console.log("\nError: Invalid behavior pack path: " + userBehPackPath)
         return
@@ -24,7 +24,7 @@ readline.question("Please enter the path to your project's behavior pack: ", use
 
     user.behPath = userBehPackPath
 
-    readline.question("Please enter the path to your project's resource pack: ", userResPackPath => {
+    readline.question("Please enter the full path to your project's resource pack: ", userResPackPath => {
         if (!fs.existsSync(userResPackPath)) {
             console.log("\nError: Invalid resource pack path: " + userResPackPath)
             return
@@ -34,7 +34,7 @@ readline.question("Please enter the path to your project's behavior pack: ", use
 
         user.resPath = userResPackPath
 
-        readline.question("Include test structures (Y or N): ", yesNo => {
+        readline.question("Include test structures and test template pools (Y or N): ", yesNo => {
             if (yesNo.toLowerCase() === "y") user.includeTests = true
 
             readline.question("Are you updating a current installation? (Y or N)", update => {
@@ -52,10 +52,10 @@ readline.question("Please enter the path to your project's behavior pack: ", use
                         const currentTarget = path.join(target, file)
     
                         if (fs.lstatSync(currentSource).isDirectory()) {
+                            if (currentSource.endsWith("template_pool") && (user.update || !user.includeTests)) continue
+
                             copyFolderPasteToTarget(currentSource, currentTarget)
                         } else {
-                            if (user.update && file.startsWith("template_pools")) continue
-
                             if (!file.startsWith("main")) fs.copyFileSync(currentSource, currentTarget)
                         }
                     }
