@@ -1,6 +1,8 @@
 # ⚠️ EARLY ACCESS (v 0.0.1) ⚠️
 **For those that are downloading:** if you are using Jigsaw Block Bedrock for your Add-On, please go to the releases section on this repository and download from there. If you download the raw contents of the repository, your Add-On will contain Typescript and it will not work in game (unless you have a compiler). **Instructions for the installation methods is found further below.**
 
+**It is highly reccomended that you read our wiki page on [installation](https://github.com/Warhead51707/Jigsaw-Block-Bedrock/wiki/Installation) before installing.**
+
 ![alt text](https://media.discordapp.net/attachments/894269220509081712/1206121191656390706/HallJigsawExample.gif?ex=65e41564&is=65d1a064&hm=e1fe02d98feb4fdbaa9524eddf39f94a2f1e9898c9a0c7dd2f8814187c2922f3&=)
 
 # ❓ What is this?
