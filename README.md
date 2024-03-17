@@ -19,7 +19,7 @@ Jigsaw Block Bedrock offers many of the same features as Java Edition's Jigsaw b
 
 Currently, the library is packed with, 
 
-- Accurate (95%) port of Java edition's Jigsaw system, including Template Pools
+- Accurate (90%) port of Java edition's Jigsaw system, including Template Pools
 - Automatic structure rotation and offset adjustment
 - Automatic structure collision detection
 - Built with map makers in mind, easy to use macro/"pick block" system
