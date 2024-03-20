@@ -8,11 +8,10 @@
 	"targetVersion": "1.20.80",
 	"description": "Made by Warhead!",
 	"experimentalGameplay": {
-		"holidayCreatorFeatures": true,
+		"holidayCreatorFeatures": false,
 		"creationOfCustomBiomes": true,
 		"upcomingCreatorFeatures": true,
 		"enableGameTestFramework": true,
-		"experimentalMolangFeatures": true,
 		"educationEdition": false
 	},
 	"bdsProject": false,

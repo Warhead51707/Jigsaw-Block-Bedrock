@@ -1,5 +1,6 @@
 import "./JigsawBlockBedrock/src/debug/jigsaw_debug"
-import "./JigsawBlockBedrock/src/gameplay/jigsaw_block_settings"
+import "./JigsawBlockBedrock/src/gameplay/jigsaw_on_interact_component"
+//import "./JigsawBlockBedrock/src/gameplay/jigsaw_block_settings"
 import "./JigsawBlockBedrock/src/gameplay/jigsaw_data_entity_handler"
 import "./JigsawBlockBedrock/src/gameplay/jigsaw_macro"
 import "./JigsawBlockBedrock/src/generator/jigsaw_generator"

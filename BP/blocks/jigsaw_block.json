@@ -25,11 +25,9 @@
                     "texture": "jigsaw"
                 }
             },
-            "minecraft:on_interact": {
-                "event": "jigsaw:empty",
-                "target": "self",
-                "condition": "!query.is_sneaking"
-            }
+            "minecraft:custom_components": [
+                "jigsaw:on_interact"
+            ]
         },
         "permutations": [
             {
@@ -176,11 +174,6 @@
                     }
                 }
             }
-        ],
-        "events": {
-            "jigsaw:empty": {
-                "swing": {}
-            }
-        }
+        ]
     }
 }
