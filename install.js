@@ -91,6 +91,30 @@ readline.question("Please enter the full path to your project's behavior pack: "
                 copyFolderPasteToTarget("./RP/particles", `${user.resPath}/particles`)
     
                 const userManifestFile = JSON.parse(fs.readFileSync(`${user.behPath}/manifest.json`))
+
+                const serverModule = userManifestFile.dependencies.find(dep => dep.module_name == "@minecraft/server")
+
+                if (!serverModule) {
+                    userManifestFile.dependencies.push({
+                        module_name: "@minecraft/server",
+                        version: "1.12.0-beta"
+                    })
+                } else {
+                    serverModule.version = "1.12.0-beta"
+                }
+
+                const serverUiModule = userManifestFile.dependencies.find(dep => dep.module_name == "@minecraft/server-ui")
+
+                if (!serverUiModule) {
+                    userManifestFile.dependencies.push({
+                        module_name: "@minecraft/server-ui",
+                        version: "1.2.0-beta"
+                    })
+                } else { 
+                    serverUiModule.version = "1.2.0-beta"
+                }
+
+                fs.writeFileSync(`${user.behPath}/manifest.json`, JSON.stringify(userManifestFile, null, 4))
     
                 const jigsawMainScriptFile = fs.readFileSync(`./BP/scripts/main.js`)
                 const userEntryScriptFile = fs.readFileSync(`${user.behPath}/${userManifestFile.modules.find(module => module.type == "script").entry}`)
