@@ -34,11 +34,6 @@ world.afterEvents.entityLoad.subscribe(async event => {
                 if (playerPlaced.x == block.location.x && playerPlaced.y == block.location.y && playerPlaced.z == block.location.z) return
             }
 
-            if (data.level == 0) {
-                block.setType(data.turnsInto)
-                return
-            }
-
             generate(event.entity)
         } catch { }
     }, 3)
