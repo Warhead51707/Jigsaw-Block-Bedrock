@@ -33,11 +33,6 @@ world.afterEvents.entityLoad.subscribe(async event => {
                 if (playerPlaced.x == block.location.x && playerPlaced.y == block.location.y && playerPlaced.z == block.location.z) return
             }
 
-            if (data.level == 0) {
-                block.setType(data.turnsInto)
-                return
-            }
-
             generate(event.entity)
         } catch { }
     }, 3)
@@ -76,7 +71,7 @@ export async function generate(source: Entity) {
 
         return
     }
-  
+
     const maxLevels: number = Math.floor(data.levels)
 
     if (data.level >= maxLevels) {
@@ -85,7 +80,7 @@ export async function generate(source: Entity) {
 
             return
         }
-      
+
         targetPool = await getTemplatePool(targetPool.fallback)
 
         if (targetPool == undefined) {
@@ -437,7 +432,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
     }
 
     if (targetPool.fallback == undefined) return null
-  
+
     const fallbackPool = await getTemplatePool(targetPool.fallback)
 
     if (fallbackPool == undefined) return null
