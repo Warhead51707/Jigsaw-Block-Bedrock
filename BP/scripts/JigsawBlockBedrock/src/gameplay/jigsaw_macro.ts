@@ -6,15 +6,18 @@ system.afterEvents.scriptEventReceive.subscribe(event => {
     if (!event.sourceEntity || !(event.sourceEntity instanceof Player)) return
     const message: string = event.message
     const sender: Player = event.sourceEntity
-    
+
     if (message == 'create') {
         createMacro(sender)
     }
     if (message == 'enable') {
-        enableMacro(sender)   
+        enableMacro(sender)
     }
     if (message == 'disable') {
         disableMacro(sender)
+    }
+    if (message == 'debug') {
+        sender.sendMessage(world.getDynamicProperty("jigsaw:terrain_matched_structures") as string)
     }
 })
 

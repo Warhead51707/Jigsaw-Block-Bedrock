@@ -1,5 +1,5 @@
 import { world, system, Dimension, Entity, Vector3 } from "@minecraft/server"
-import { JigsawBlockData  } from "../types"
+import { JigsawBlockData } from "../types"
 import { getMacro, isMacroEnabled } from "../util/macro_utils"
 
 world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
@@ -9,7 +9,7 @@ world.afterEvents.playerPlaceBlock.subscribe(placeJigsaw => {
     const permutation = block.permutation
 
     // player placed flag
-    let playerPlacedJigsaws: any = world.getDynamicProperty("jigsaw:player_placed") as any
+    let playerPlacedJigsaws: any = world.getDynamicProperty("jigsaw:player_placed")
 
     if (playerPlacedJigsaws == undefined) {
         world.setDynamicProperty("jigsaw:player_placed", "[]")

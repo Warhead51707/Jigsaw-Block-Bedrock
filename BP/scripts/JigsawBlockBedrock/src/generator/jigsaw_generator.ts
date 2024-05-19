@@ -4,6 +4,7 @@ import { weightedRandom, boundsIntersect, boundsFit, randomMinMax, boundsFitsSma
 import { parseSize, getPlacedBounds, addPlacedBounds, PossiblePlacements, sortByPlacementPriority, sortBySelectionPriority, selectionPriorityExact } from '../util/jigsaw_generator_utils'
 import { placeStructureAndGetEntities, lockBoundsMutex, unlockBoundsMutex, MutexRequest } from './jigsaw_smart_queue'
 import { getTemplatePool, elementWeightedRandom } from '../util/template_pool_utils'
+import { createTerrainMatchedStructure } from './jigsaw_terrain_matching'
 
 const structureBranchesCache: { [key: string]: StructureBranches } = {}
 
@@ -76,7 +77,7 @@ export async function generate(source: Entity) {
 
         return
     }
-  
+
     const maxLevels: number = Math.floor(data.levels)
 
     if (data.level >= maxLevels) {
@@ -85,7 +86,7 @@ export async function generate(source: Entity) {
 
             return
         }
-      
+
         targetPool = await getTemplatePool(targetPool.fallback)
 
         if (targetPool == undefined) {
@@ -105,7 +106,7 @@ export async function generate(source: Entity) {
 
     const placementStructure: Structure = placement.structures[0]
 
-    const branchEntities = await placeStructureAndGetEntities(placementStructure, placement.position, placement.rotation, false, placement.bounds, dimension)
+    const branchEntities = await placeStructureAndGetEntities(placementStructure, placement.position, placement.rotation, false, placement.bounds, dimension, placement.terrainMatch)
 
     for (const branchEntity of sortByPlacementPriority(branchEntities) as Entity[]) {
         if (branchEntity.typeId !== 'jigsaw:jigsaw_data') continue
@@ -155,6 +156,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
 
     while (targetPoolElements.length > 0) {
         //Template pool logic
+        let terrainMatch = false
 
         let structuresToPlace: Structure[] = []
 
@@ -167,6 +169,8 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
         if (chosenElement.element.element_type == "minecraft:single_pool_element") {
             const structure: Structure = world.structureManager.get((chosenElement.element as EmptyPoolElement & SinglePoolElement).location)
             structuresToPlace.push(structure)
+
+            if ((chosenElement.element as EmptyPoolElement & SinglePoolElement).projection == "terrain_matching") terrainMatch = true
         }
 
         if (chosenElement.element.element_type == "minecraft:list_pool_element") {
@@ -416,7 +420,8 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
                     y: position.y + possiblePlacement.sourceOffset.y,
                     z: position.z + possiblePlacement.sourceOffset.z,
                 },
-                mutex
+                mutex,
+                terrainMatch
             })
 
             break
@@ -437,7 +442,7 @@ export async function getPlacement(position: Vector3, dimension: Dimension, data
     }
 
     if (targetPool.fallback == undefined) return null
-  
+
     const fallbackPool = await getTemplatePool(targetPool.fallback)
 
     if (fallbackPool == undefined) return null

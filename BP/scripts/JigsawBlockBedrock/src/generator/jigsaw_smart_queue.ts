@@ -1,6 +1,7 @@
 import { world, system, Dimension, Vector3, Entity, Structure, StructureRotation } from "@minecraft/server"
 import { Bounds } from "../types"
 import { boundsIntersect } from "../util/jigsaw_math"
+import { createTerrainMatchedStructure } from "./jigsaw_terrain_matching"
 
 async function waitTick() {
     await new Promise<void>(res => {
@@ -45,13 +46,8 @@ export function unlockBoundsMutex(request: MutexRequest) {
     activeMutexes.splice(activeMutexes.indexOf(request), 1)
 }
 
-export async function placeStructureAndGetEntities(structure: Structure, position: Vector3, rotation: StructureRotation, onlyEntities: boolean, bounds: Bounds, dimension: Dimension): Promise<Entity[]> {
+export async function placeStructureAndGetEntities(structure: Structure, position: Vector3, rotation: StructureRotation, onlyEntities: boolean, bounds: Bounds, dimension: Dimension, terrainMatched = false): Promise<Entity[]> {
     const existingEntityIds = dimension.getEntities().map(entity => entity.id)
-
-    //world.structureManager.place(structure.id, dimension, position, {
-    // rotation: rotation,
-    // includeEntities: !onlyEntities
-    // })
 
     let tempRotation: string
 
@@ -60,7 +56,26 @@ export async function placeStructureAndGetEntities(structure: Structure, positio
     if (rotation == StructureRotation.Rotate270) tempRotation = "270_degrees"
     if (rotation == StructureRotation.Rotate90) tempRotation = "90_degrees"
 
-    await dimension.runCommand(`structure load "${structure.id}" ${position.x} ${position.y} ${position.z} ${tempRotation} none true ${!onlyEntities}`)
+    if (terrainMatched) {
+
+        let xOffset = 0
+        let zOffset = 0
+
+        if (rotation == StructureRotation.Rotate90 || rotation == StructureRotation.Rotate180) xOffset = -1
+        if (rotation == StructureRotation.Rotate180 || rotation == StructureRotation.Rotate270) zOffset = -1
+
+        world.structureManager.place(createTerrainMatchedStructure(structure, bounds, rotation), dimension, {
+            x: position.x + xOffset,
+            y: -64,
+            z: position.z + zOffset
+        }, { includeEntities: !onlyEntities, rotation: rotation })
+
+        await waitTick()
+
+        world.structureManager.delete("jigsaw:terrain_piece")
+    } else {
+        await dimension.runCommand(`structure load "${structure.id}" ${position.x} ${position.y} ${position.z} ${tempRotation} none true ${!onlyEntities}`)
+    }
 
     await waitTick()
     await waitTickFast()

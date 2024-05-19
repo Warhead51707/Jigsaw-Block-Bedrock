@@ -14,7 +14,7 @@ export type JigsawBlockData = {
 
     cardinalDirection: string,
     blockFace: string,
-    
+
     branch: boolean,
 }
 
@@ -59,7 +59,17 @@ export interface PlacementResult {
     rotation: StructureRotation,
     bounds: Bounds
     connectedPosition: Vector3,
-    mutex: MutexRequest
+    mutex: MutexRequest,
+    terrainMatch: boolean
+}
+
+export type TerrainStructure = {
+    blocks: TerrainStructureBlock[]
+}
+
+export type TerrainStructureBlock = {
+    identifier: string,
+    position: Vector3
 }
 
 export type StructureBranches = { data: JigsawBlockData, offset: Vector3 }[]

@@ -86,7 +86,7 @@ export async function getTemplatePool(id: string): Promise<TemplatePool | null> 
             const projection: string | undefined = (poolElement.element as ListPoolElement).projection
             const elements: TemplatePoolSubElement[] | undefined = (poolElement.element as ListPoolElement).elements
 
-            if (projection == undefined || typeof projection != "string" || projection != "rigid") {
+            if (projection == undefined || typeof projection != "string" || (projection != "rigid" && projection != "terrain_matching")) {
                 console.warn(`§dJigsaw Block Bedrock§r (§4Error§r): Template pool '${foundTemplatePool.id}' contains a list pool element with invalid projection value`)
                 return null
             }
