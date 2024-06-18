@@ -34,10 +34,7 @@ readline.question("Please enter the full path to your project's behavior pack: "
 
         user.resPath = userResPackPath
 
-        readline.question("Include test structures and test template pools (Y or N): ", yesNo => {
-            if (yesNo.toLowerCase() === "y") user.includeTests = true
-
-            readline.question("Are you updating a current installation? (Y or N)", update => {
+            readline.question("Are you updating a current installation? (Y or N): ", update => {
                 if (update.toLowerCase() === "y") update = true
 
                  function copyFolderPasteToTarget(source, target) {
@@ -46,14 +43,15 @@ readline.question("Please enter the full path to your project's behavior pack: "
                     if (!fs.existsSync(target)) {
                         fs.mkdirSync(target)
                     }
+
+                    if (target.endsWith("template_pool")) return
                     
                     for (const file of files) {
+                        if (file == "main.js") continue
                         const currentSource = path.join(source, file)
                         const currentTarget = path.join(target, file)
     
                         if (fs.lstatSync(currentSource).isDirectory()) {
-                            if (currentSource.endsWith("template_pool") && (user.update || !user.includeTests)) continue
-
                             copyFolderPasteToTarget(currentSource, currentTarget)
                         } else {
                             if (!file.startsWith("main")) fs.copyFileSync(currentSource, currentTarget)
@@ -81,8 +79,6 @@ readline.question("Please enter the full path to your project's behavior pack: "
                 copyFolderPasteToTarget("./BP/blocks", `${user.behPath}/blocks`)
                 copyFolderPasteToTarget("./BP/entities", `${user.behPath}/entities`)
                 copyFolderPasteToTarget("./BP/scripts", `${user.behPath}/scripts`)
-    
-                if (user.includeTests) copyFolderPasteToTarget("./BP/structures", `${user.behPath}/structures`)
     
                 // Res pack
                 copyFolderPasteToTarget("./RP/ui", `${user.resPath}/ui`)
@@ -140,6 +136,6 @@ readline.question("Please enter the full path to your project's behavior pack: "
                 console.log("\nTransfer complete.")
                 readline.close()
             })
-        })
+        
     })
 })

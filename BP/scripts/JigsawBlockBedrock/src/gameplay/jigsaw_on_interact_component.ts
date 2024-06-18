@@ -46,7 +46,7 @@ class OnInteractComponent implements BlockCustomComponent {
         form.slider("Levels", 0, settings.jigsawMaxLevels, incrementAmount, 7)
         return form
     }
-    
+
     private finalizeForm(jigsawEntity: Entity, jigsawData: JigsawBlockData, response: ModalFormResponse) {
         let shouldGenerate: boolean = false
 
