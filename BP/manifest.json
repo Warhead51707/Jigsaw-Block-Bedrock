@@ -10,8 +10,8 @@
 		"description": "Standalone/For Maps\n\nMade by Warhead\nContributors: OuterCloud, KekeCreations, Anthrax101, Vitroflare, Chikorita Lover, ExDrill",
 		"min_engine_version": [
 			1,
-			20,
-			80
+			21,
+			0
 		],
 		"uuid": "0c4fbd68-42dd-4889-92c1-a8c3e4cbdaf8",
 		"version": [
@@ -53,7 +53,7 @@
 		},
 		{
 			"module_name": "@minecraft/server",
-			"version": "1.11.0-beta"
+			"version": "1.12.0-beta"
 		},
 		{
 			"module_name": "@minecraft/server-ui",
